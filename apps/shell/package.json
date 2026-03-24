@@ -4,8 +4,8 @@
   "scripts": {
     "dev": "rspack serve",
     "build": "rspack build",
-    "test": "jest",
-    "test:watch": "jest --watch"
+    "test": "nx jest:test",
+    "test:watch": "nx jest:test --watch"
   },
   "dependencies": {
     "@nab/shared-ui": "workspace:*",

@@ -6,8 +6,8 @@
   "types": "src/index.ts",
   "scripts": {
     "test": "jest",
-    "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "storybook": "nx serve:storybook -p 6006",
+    "build-storybook": "nx build:storybook"
   },
   "peerDependencies": {
     "react": "^18.2.0"

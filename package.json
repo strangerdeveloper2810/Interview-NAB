@@ -12,6 +12,24 @@
     "lint": "pnpm -r lint"
   },
   "devDependencies": {
+    "@nx/jest": "22.6.1",
+    "@nx/js": "^22.6.1",
+    "@nx/rspack": "22.6.1",
+    "@nx/storybook": "22.6.1",
+    "@nx/web": "22.6.1",
+    "@rspack/cli": "1.6.8",
+    "@rspack/core": "1.6.8",
+    "@rspack/dev-server": "^1.1.4",
+    "@rspack/plugin-react-refresh": "^1.0.0",
+    "@swc-node/register": "~1.11.1",
+    "@swc/core": "~1.15.5",
+    "@swc/helpers": "~0.5.18",
+    "jest": "^30.0.2",
+    "nx": "22.6.1",
+    "prettier": "~3.6.2",
+    "react-refresh": "~0.14.0",
+    "storybook": "8.6.18",
     "typescript": "^5.4.0"
-  }
+  },
+  "dependencies": {}
 }

@@ -267,6 +267,242 @@ Dự án này được thiết kế để demonstrate kiến thức về các ch
 - Props và variants pattern
 - Accessibility (a11y)
 
+---
+
+## BFF Architecture (Backend for Frontend)
+
+### Tổng quan
+
+BFF là layer trung gian giữa Frontend và Backend services, được thiết kế riêng cho nhu cầu của Frontend application.
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                           FRONTEND (Shell App)                              │
+│                              localhost:3000                                 │
+└─────────────────────────────────────────────────────────────────────────────┘
+                                      │
+                                      │ HTTP Requests
+                                      │ (REST API)
+                                      ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                              BFF LAYER                                      │
+│                            localhost:4000                                   │
+│                                                                             │
+│  ┌─────────────────────────────────────────────────────────────────────┐   │
+│  │                         MIDDLEWARE                                   │   │
+│  │  ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌───────────────┐  │   │
+│  │  │  CORS   │→│ Helmet  │→│  JSON   │→│ Logger  │→│ Auth (JWT)    │  │   │
+│  │  └─────────┘ └─────────┘ └─────────┘ └─────────┘ └───────────────┘  │   │
+│  └─────────────────────────────────────────────────────────────────────┘   │
+│                                      │                                      │
+│                                      ▼                                      │
+│  ┌─────────────────────────────────────────────────────────────────────┐   │
+│  │                          ROUTES                                      │   │
+│  │  /api/auth/*  │  /api/users/*  │  /api/accounts/*  │  /api/transfers │   │
+│  └─────────────────────────────────────────────────────────────────────┘   │
+│                                      │                                      │
+│                                      ▼                                      │
+│  ┌─────────────────────────────────────────────────────────────────────┐   │
+│  │                       CONTROLLERS                                    │   │
+│  │              (Handle HTTP Request/Response)                          │   │
+│  │  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐   │   │
+│  │  │   Auth   │ │   User   │ │ Account  │ │ Transfer │ │Dashboard │   │   │
+│  │  └──────────┘ └──────────┘ └──────────┘ └──────────┘ └──────────┘   │   │
+│  └─────────────────────────────────────────────────────────────────────┘   │
+│                                      │                                      │
+│                                      ▼                                      │
+│  ┌─────────────────────────────────────────────────────────────────────┐   │
+│  │                        SERVICES                                      │   │
+│  │                   (Business Logic Layer)                             │   │
+│  │  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────────────────┐    │   │
+│  │  │   Auth   │ │   User   │ │ Account  │ │      Dashboard       │    │   │
+│  │  │ Service  │ │ Service  │ │ Service  │ │       Service        │    │   │
+│  │  └──────────┘ └──────────┘ └──────────┘ └──────────────────────┘    │   │
+│  └─────────────────────────────────────────────────────────────────────┘   │
+│                                      │                                      │
+│                                      ▼                                      │
+│  ┌─────────────────────────────────────────────────────────────────────┐   │
+│  │                      REPOSITORIES                                    │   │
+│  │                    (Data Access Layer)                               │   │
+│  │  ┌────────────────┐ ┌────────────────┐ ┌────────────────────────┐   │   │
+│  │  │ UserRepository │ │AccountRepository│ │ TransactionRepository │   │   │
+│  │  └────────────────┘ └────────────────┘ └────────────────────────┘   │   │
+│  └─────────────────────────────────────────────────────────────────────┘   │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+                                      │
+                                      ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                             DATABASE LAYER                                  │
+│                                                                             │
+│   ┌─────────────────────────────┐     ┌─────────────────────────────────┐  │
+│   │        PostgreSQL           │     │            Redis                │  │
+│   │       localhost:5432        │     │        localhost:6379           │  │
+│   │                             │     │                                 │  │
+│   │  ┌─────────┐ ┌───────────┐  │     │  • Session cache               │  │
+│   │  │  users  │ │  accounts │  │     │  • Rate limiting               │  │
+│   │  └─────────┘ └───────────┘  │     │  • Refresh tokens              │  │
+│   │  ┌─────────────────────┐    │     │                                 │  │
+│   │  │    transactions     │    │     │                                 │  │
+│   │  └─────────────────────┘    │     │                                 │  │
+│   └─────────────────────────────┘     └─────────────────────────────────┘  │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+### Layered Architecture
+
+| Layer | Responsibility | Files |
+|-------|----------------|-------|
+| **Middleware** | Cross-cutting concerns (auth, logging, security) | `middleware/*.ts` |
+| **Routes** | URL routing, method mapping | `routes/*.ts` |
+| **Controllers** | Parse request, validate input, format response | `controllers/*.ts` |
+| **Services** | Business logic, orchestration | `services/*.ts` |
+| **Repositories** | Data access, SQL queries | `repositories/*.ts` |
+
+### Request Flow Example
+
+```
+POST /api/auth/login
+        │
+        ▼
+┌───────────────────┐
+│    Middleware     │  1. CORS check
+│   (cors, helmet)  │  2. Security headers
+└─────────┬─────────┘
+          │
+          ▼
+┌───────────────────┐
+│   requestLogger   │  3. Log: "→ POST /api/auth/login"
+└─────────┬─────────┘
+          │
+          ▼
+┌───────────────────┐
+│    authRoutes     │  4. Route to controller
+│ POST /auth/login  │
+└─────────┬─────────┘
+          │
+          ▼
+┌───────────────────┐
+│  authController   │  5. Extract {email, password} from body
+│     .login()      │  6. Call authService.login()
+└─────────┬─────────┘
+          │
+          ▼
+┌───────────────────┐
+│   authService     │  7. Find user by email
+│     .login()      │  8. Verify password (bcrypt)
+│                   │  9. Generate JWT tokens
+└─────────┬─────────┘
+          │
+          ▼
+┌───────────────────┐
+│  userRepository   │  10. SELECT * FROM users WHERE email = ?
+│  .findByEmail()   │
+└─────────┬─────────┘
+          │
+          ▼
+┌───────────────────┐
+│    PostgreSQL     │  11. Return user row
+└─────────┬─────────┘
+          │
+          ▼
+    Response: 200 OK
+    {
+      "success": true,
+      "data": {
+        "user": {...},
+        "tokens": {
+          "accessToken": "eyJ...",
+          "refreshToken": "eyJ..."
+        }
+      }
+    }
+```
+
+### JWT Authentication Flow
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                           JWT TOKEN STRATEGY                                │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│  ACCESS TOKEN                         REFRESH TOKEN                         │
+│  ─────────────                        ─────────────                         │
+│  • Expire: 15 minutes                 • Expire: 7 days                      │
+│  • Dùng: Authenticate API requests    • Dùng: Lấy access token mới          │
+│  • Lưu: Memory (recommended)          • Lưu: HttpOnly cookie / localStorage │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+FLOW:
+
+  ┌────────┐                                              ┌────────┐
+  │ Client │                                              │  BFF   │
+  └───┬────┘                                              └───┬────┘
+      │                                                       │
+      │  1. POST /auth/login {email, password}                │
+      │──────────────────────────────────────────────────────>│
+      │                                                       │
+      │  2. {accessToken, refreshToken}                       │
+      │<──────────────────────────────────────────────────────│
+      │                                                       │
+      │  3. GET /api/accounts                                 │
+      │     Authorization: Bearer <accessToken>               │
+      │──────────────────────────────────────────────────────>│
+      │                                                       │
+      │  4. {accounts: [...]}                                 │
+      │<──────────────────────────────────────────────────────│
+      │                                                       │
+      │         ⏰ 15 minutes later... accessToken expired    │
+      │                                                       │
+      │  5. GET /api/accounts (expired token)                 │
+      │──────────────────────────────────────────────────────>│
+      │                                                       │
+      │  6. 401 Unauthorized                                  │
+      │<──────────────────────────────────────────────────────│
+      │                                                       │
+      │  7. POST /auth/refresh {refreshToken}                 │
+      │──────────────────────────────────────────────────────>│
+      │                                                       │
+      │  8. {newAccessToken, newRefreshToken}                 │
+      │<──────────────────────────────────────────────────────│
+      │                                                       │
+      │  9. Retry: GET /api/accounts (new token)              │
+      │──────────────────────────────────────────────────────>│
+      │                                                       │
+      │  10. {accounts: [...]} ✅                             │
+      │<──────────────────────────────────────────────────────│
+```
+
+### Error Handling
+
+```typescript
+// Consistent error response format
+interface ErrorResponse {
+  success: false;
+  error: string;
+  code?: string;
+}
+
+// Example errors
+{ success: false, error: "Invalid credentials", code: "INVALID_CREDENTIALS" }
+{ success: false, error: "Account not found", code: "ACCOUNT_NOT_FOUND" }
+{ success: false, error: "Insufficient balance", code: "INSUFFICIENT_BALANCE" }
+```
+
+### Tại sao dùng BFF?
+
+| Benefit | Description |
+|---------|-------------|
+| **Tailored API** | API được thiết kế riêng cho Frontend, không phụ thuộc backend services |
+| **Aggregation** | Gộp nhiều backend calls thành 1 request (Dashboard) |
+| **Security** | JWT handling, sensitive logic ở server-side |
+| **Transformation** | Transform data format phù hợp với UI |
+| **Caching** | Cache responses với Redis |
+
+> 📖 Chi tiết implementation: [bff/README.md](./bff/README.md)
+
 ## Tài liệu tham khảo
 
 - [Module Federation Documentation](https://module-federation.io/)
