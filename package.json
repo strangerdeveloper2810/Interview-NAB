@@ -1,0 +1,17 @@
+{
+  "name": "nab-banking-portal",
+  "private": true,
+  "scripts": {
+    "dev": "pnpm -r --parallel dev",
+    "dev:shell": "pnpm --filter shell dev",
+    "dev:bff": "pnpm --filter bff dev",
+    "dev:storybook": "pnpm --filter @nab/shared-ui storybook",
+    "build": "pnpm -r build",
+    "build:storybook": "pnpm --filter @nab/shared-ui build-storybook",
+    "test": "pnpm -r test",
+    "lint": "pnpm -r lint"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.0"
+  }
+}

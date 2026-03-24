@@ -1,0 +1,49 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: nab-postgres
+    environment:
+      POSTGRES_USER: nab_user
+      POSTGRES_PASSWORD: nab_password
+      POSTGRES_DB: nab_banking
+    ports:
+      - "5432:5432"
+    volumes:
+      - nab_postgres_data:/var/lib/postgresql/data
+      - ./bff/scripts/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U nab_user -d nab_banking"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: nab-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - nab_redis_data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  adminer:
+    image: adminer:latest
+    container_name: nab-adminer
+    ports:
+      - "8080:8080"
+    environment:
+      ADMINER_DEFAULT_SERVER: postgres
+    depends_on:
+      - postgres
+    restart: unless-stopped
+
+volumes:
+  nab_postgres_data:
+  nab_redis_data:
