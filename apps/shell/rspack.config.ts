@@ -12,6 +12,11 @@ export default defineConfig({
     extensions: [".tsx", ".ts", ".jsx", ".js"],
   },
   module: {
+    parser: {
+      "css/module": {
+        namedExports: false,
+      },
+    },
     rules: [
       {
         test: /\.(tsx?|jsx?)$/,
@@ -55,11 +60,11 @@ export default defineConfig({
       shared: {
         react: {
           singleton: true,
-          eager: true,
+          requiredVersion: "^18.2.0",
         },
         "react-dom": {
           singleton: true,
-          eager: true,
+          requiredVersion: "^18.2.0",
         },
         "react-router": {
           singleton: true,
@@ -70,6 +75,9 @@ export default defineConfig({
       },
     }),
   ],
+  experiments: {
+    css: true,
+  },
   devServer: {
     port: 3000,
     historyApiFallback: true,

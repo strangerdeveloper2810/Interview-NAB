@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "skills": {
+    "mf-docs": {
+      "source": "module-federation/core",
+      "sourceType": "github",
+      "computedHash": "d160493986eb50046e1a88b96623948082f2c9d5ec77b9359283a30bb1842d59"
+    }
+  }
+}
