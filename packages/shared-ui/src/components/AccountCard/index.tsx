@@ -71,6 +71,7 @@ export function AccountCard({
           amount={account.balance}
           currency={account.currency}
           size="lg"
+          className={styles.balanceAmount}
         />
       </div>
 

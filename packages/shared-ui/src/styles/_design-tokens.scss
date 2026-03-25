@@ -1,0 +1,291 @@
+// Material Design 3 Design Tokens for Banking
+// Professional, trustworthy, accessible color scheme
+
+// ============================================================================
+// SURFACE & ELEVATION SYSTEM
+// ============================================================================
+
+// Surface colors (neutral foundation)
+$surface: #ffffff;
+$surface-dim: #f0f2f5;
+$surface-bright: #ffffff;
+$surface-container-lowest: #ffffff;
+$surface-container-low: #f0f2f5;
+$surface-container: #e8ebf0;
+$surface-container-high: #dde1e9;
+$surface-container-highest: #d2d7e2;
+
+// Elevation system (modern stronger shadows)
+$elevation-1: 0px 1px 3px rgba(0, 0, 0, 0.06), 0px 4px 16px rgba(0, 0, 0, 0.04);
+$elevation-2: 0px 2px 8px rgba(0, 0, 0, 0.08), 0px 8px 24px rgba(0, 0, 0, 0.06);
+$elevation-3: 0px 4px 12px rgba(0, 0, 0, 0.10), 0px 12px 32px rgba(0, 0, 0, 0.08);
+$elevation-4: 0px 8px 20px rgba(0, 0, 0, 0.12), 0px 16px 40px rgba(0, 0, 0, 0.10);
+$elevation-5: 0px 12px 28px rgba(0, 0, 0, 0.14), 0px 20px 48px rgba(0, 0, 0, 0.12);
+
+// ============================================================================
+// BANKING COLOR PALETTE
+// ============================================================================
+
+// Primary - Vibrant modern blue (Revolut/N26/Wise style)
+$primary-10: #0d2260;
+$primary-20: #1241a3;
+$primary-30: #1550c8;
+$primary-40: #1a56db;
+$primary-50: #1a56db; // Main brand color
+$primary-60: #4d7de8;
+$primary-80: #adc4f7;
+$primary-90: #dce8fe;
+$primary-95: #eff4ff;
+
+// Secondary - Conservative teal (growth, money)
+$secondary-20: #004d40;
+$secondary-30: #00695c;
+$secondary-40: #00897b;
+$secondary-50: #009688;
+$secondary-60: #26a69a;
+$secondary-80: #80cbc4;
+$secondary-90: #e0f2f1;
+
+// Error - Financial warning red
+$error-10: #8b0000;
+$error-30: #d32f2f;
+$error-40: #f44336;
+$error-80: #ffcdd2;
+$error-90: #ffebee;
+
+// Warning - Amber for alerts
+$warning-30: #f57c00;
+$warning-40: #ff9800;
+$warning-80: #ffe0b2;
+$warning-90: #fff8e1;
+
+// Success - Trustworthy green
+$success-30: #2e7d32;
+$success-40: #4caf50;
+$success-80: #c8e6c9;
+$success-90: #e8f5e8;
+
+// ============================================================================
+// SEMANTIC COLORS
+// ============================================================================
+
+// Text colors
+$on-surface: #1a1a1a;
+$on-surface-variant: #424242;
+$outline: #757575;
+$outline-variant: #c4c4c4;
+
+// State colors
+$primary: $primary-50;
+$on-primary: #ffffff;
+$primary-container: $primary-90;
+$on-primary-container: $primary-10;
+
+$secondary: $secondary-50;
+$on-secondary: #ffffff;
+$secondary-container: $secondary-90;
+$on-secondary-container: $secondary-20;
+
+$error: $error-40;
+$on-error: #ffffff;
+$error-container: $error-90;
+$on-error-container: $error-10;
+
+// ============================================================================
+// TYPOGRAPHY SCALE
+// ============================================================================
+
+// Banking-appropriate font stack
+$font-family-primary: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+$font-family-mono: 'SF Mono', 'Fira Code', 'Monaco', 'Roboto Mono', monospace;
+
+// Type scale (Material 3)
+$display-large: (
+  size: 57px,
+  weight: 400,
+  line-height: 64px,
+  letter-spacing: -0.25px
+);
+
+$headline-large: (
+  size: 32px,
+  weight: 600,
+  line-height: 40px,
+  letter-spacing: -0.25px
+);
+
+$headline-medium: (
+  size: 28px,
+  weight: 600,
+  line-height: 36px,
+  letter-spacing: 0px
+);
+
+$headline-small: (
+  size: 24px,
+  weight: 600,
+  line-height: 32px,
+  letter-spacing: 0px
+);
+
+$title-large: (
+  size: 22px,
+  weight: 500,
+  line-height: 28px,
+  letter-spacing: 0px
+);
+
+$title-medium: (
+  size: 16px,
+  weight: 600,
+  line-height: 24px,
+  letter-spacing: 0.1px
+);
+
+$title-small: (
+  size: 14px,
+  weight: 600,
+  line-height: 20px,
+  letter-spacing: 0.1px
+);
+
+$label-large: (
+  size: 14px,
+  weight: 500,
+  line-height: 20px,
+  letter-spacing: 0.1px
+);
+
+$label-medium: (
+  size: 12px,
+  weight: 500,
+  line-height: 16px,
+  letter-spacing: 0.5px
+);
+
+$body-large: (
+  size: 16px,
+  weight: 400,
+  line-height: 24px,
+  letter-spacing: 0.15px
+);
+
+$body-medium: (
+  size: 14px,
+  weight: 400,
+  line-height: 20px,
+  letter-spacing: 0.25px
+);
+
+$body-small: (
+  size: 12px,
+  weight: 400,
+  line-height: 16px,
+  letter-spacing: 0.4px
+);
+
+// ============================================================================
+// SHAPE SYSTEM
+// ============================================================================
+
+// Corner radius (conservative for banking)
+$corner-none: 0px;
+$corner-extra-small: 4px;
+$corner-small: 8px;
+$corner-medium: 12px;
+$corner-large: 16px;
+$corner-extra-large: 28px;
+
+// ============================================================================
+// SPACING SYSTEM
+// ============================================================================
+
+$space-0: 0px;
+$space-1: 4px;
+$space-2: 8px;
+$space-3: 12px;
+$space-4: 16px;
+$space-5: 20px;
+$space-6: 24px;
+$space-7: 28px;
+$space-8: 32px;
+$space-10: 40px;
+$space-12: 48px;
+$space-16: 64px;
+$space-20: 80px;
+
+// ============================================================================
+// COMPONENT TOKENS
+// ============================================================================
+
+// Card component
+$card-surface: $surface;
+$card-surface-variant: $surface-container-low;
+$card-outline: transparent;
+$card-elevation: $elevation-1;
+$card-elevation-hover: $elevation-2;
+$card-border-radius: $corner-large;
+
+// Button component
+$button-primary-surface: $primary;
+$button-primary-on-surface: $on-primary;
+$button-secondary-surface: $surface;
+$button-secondary-outline: $outline-variant;
+$button-border-radius: $corner-small;
+$button-elevation: $elevation-1;
+
+// Account card (dark premium bank card)
+$account-card-surface: #0a1628;
+$account-card-on-surface: #ffffff;
+$account-card-elevation: $elevation-3;
+$account-card-border-radius: $corner-extra-large;
+
+// Alert component
+$alert-info-surface: #eff6ff;
+$alert-info-outline: $primary-40;
+$alert-info-on-surface: $primary-10;
+
+$alert-success-surface: rgba($success-80, 0.12);
+$alert-success-outline: $success-40;
+$alert-success-on-surface: $success-30;
+
+$alert-warning-surface: rgba($warning-80, 0.12);
+$alert-warning-outline: $warning-40;
+$alert-warning-on-surface: $warning-30;
+
+$alert-error-surface: rgba($error-80, 0.12);
+$alert-error-outline: $error-40;
+$alert-error-on-surface: $error-10;
+
+// ============================================================================
+// MIXINS
+// ============================================================================
+
+@mixin typography($scale) {
+  font-size: map-get($scale, size);
+  font-weight: map-get($scale, weight);
+  line-height: map-get($scale, line-height);
+  letter-spacing: map-get($scale, letter-spacing);
+}
+
+@mixin elevation($level) {
+  @if $level == 1 { box-shadow: $elevation-1; }
+  @else if $level == 2 { box-shadow: $elevation-2; }
+  @else if $level == 3 { box-shadow: $elevation-3; }
+  @else if $level == 4 { box-shadow: $elevation-4; }
+  @else if $level == 5 { box-shadow: $elevation-5; }
+  @else { box-shadow: none; }
+}
+
+@mixin surface($variant: 'primary') {
+  @if $variant == 'primary' {
+    background: $surface;
+    color: $on-surface;
+  } @else if $variant == 'container' {
+    background: $surface-container;
+    color: $on-surface;
+  } @else if $variant == 'dim' {
+    background: $surface-dim;
+    color: $on-surface;
+  }
+}

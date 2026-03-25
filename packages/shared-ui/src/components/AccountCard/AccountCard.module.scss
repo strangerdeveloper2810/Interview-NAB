@@ -1,17 +1,20 @@
+@import '../../styles/design-tokens';
+
 .card {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  background: linear-gradient(135deg, #0a1628 0%, #1a3a5c 60%, #0f3460 100%);
+  color: #ffffff;
   border-radius: 20px;
-  padding: 28px;
+  padding: $space-7;
   min-width: 320px;
   position: relative;
   overflow: hidden;
   box-shadow:
-    0 10px 40px rgba(102, 126, 234, 0.4),
-    0 0 0 1px rgba(255, 255, 255, 0.1) inset;
-  backdrop-filter: blur(10px);
+    0 8px 24px rgba(10, 22, 40, 0.45),
+    0 2px 8px rgba(10, 22, 40, 0.30);
+  font-family: $font-family-primary;
+  border: none;
 
-  // Glassmorphism overlay
+  // Subtle card sheen overlay
   &::before {
     content: "";
     position: absolute;
@@ -19,75 +22,87 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: linear-gradient(
-      135deg,
-      rgba(255, 255, 255, 0.2) 0%,
-      rgba(255, 255, 255, 0) 50%
-    );
+    background:
+      radial-gradient(ellipse at 10% 15%, rgba(255, 255, 255, 0.06) 0%, transparent 55%),
+      radial-gradient(ellipse at 85% 85%, rgba(26, 86, 219, 0.18) 0%, transparent 50%);
     pointer-events: none;
   }
 
-  // Decorative circles
+  // Decorative circle pattern (physical card feel)
   &::after {
     content: "";
     position: absolute;
-    width: 200px;
-    height: 200px;
-    background: rgba(255, 255, 255, 0.1);
+    right: -40px;
+    top: -40px;
+    width: 180px;
+    height: 180px;
     border-radius: 50%;
-    top: -80px;
-    right: -80px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    pointer-events: none;
   }
 }
 
 .clickable {
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.22s cubic-bezier(0.2, 0, 0, 1);
 
   &:hover {
-    transform: translateY(-4px) scale(1.02);
+    transform: translateY(-2px);
     box-shadow:
-      0 20px 60px rgba(102, 126, 234, 0.5),
-      0 0 0 1px rgba(255, 255, 255, 0.2) inset;
+      0 14px 36px rgba(10, 22, 40, 0.50),
+      0 4px 12px rgba(10, 22, 40, 0.35);
   }
 
   &:active {
-    transform: translateY(-2px) scale(1.01);
+    transform: translateY(0);
   }
 
   &:focus-visible {
     outline: none;
     box-shadow:
-      0 20px 60px rgba(102, 126, 234, 0.5),
-      0 0 0 3px rgba(255, 255, 255, 0.5);
+      0 8px 24px rgba(10, 22, 40, 0.45),
+      0 0 0 3px rgba(26, 86, 219, 0.60);
   }
 }
 
 .selected {
   box-shadow:
-    0 20px 60px rgba(102, 126, 234, 0.5),
-    0 0 0 3px #fff;
+    0 12px 32px rgba(10, 22, 40, 0.50),
+    0 0 0 2px rgba(77, 125, 232, 0.80);
 }
 
 .header {
   display: flex;
   align-items: center;
-  gap: 16px;
-  margin-bottom: 32px;
+  gap: $space-4;
+  margin-bottom: $space-8;
   position: relative;
   z-index: 1;
 }
 
+// Chip-style icon (EMV chip aesthetic)
 .icon {
-  width: 48px;
-  height: 48px;
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 14px;
+  width: 44px;
+  height: 34px;
+  background: linear-gradient(135deg, #d4a843 0%, #f0c855 40%, #c8973a 100%);
+  border-radius: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 24px;
-  backdrop-filter: blur(10px);
+  font-size: 0;          // hide emoji text, rely on the gold chip look
+  flex-shrink: 0;
+  position: relative;
+  overflow: hidden;
+
+  // Chip contact lines
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 6px;
+    border: 1px solid rgba(180, 130, 30, 0.60);
+    border-radius: 2px;
+  }
 }
 
 .info {
@@ -96,45 +111,49 @@
 
 .name {
   margin: 0;
-  font-size: 18px;
-  font-weight: 600;
-  letter-spacing: -0.02em;
+  @include typography($title-medium);
+  color: #ffffff;
+  font-weight: 700;
+  letter-spacing: 0.02em;
 }
 
 .type {
-  font-size: 13px;
-  opacity: 0.8;
+  @include typography($label-medium);
+  color: rgba(255, 255, 255, 0.55);
   text-transform: uppercase;
-  letter-spacing: 1px;
-  font-weight: 500;
+  letter-spacing: 0.08em;
+  margin-top: $space-1;
 }
 
 .balance {
-  margin-bottom: 20px;
+  margin-bottom: $space-5;
   position: relative;
   z-index: 1;
 }
 
 .balanceLabel {
   display: block;
-  font-size: 13px;
-  opacity: 0.8;
-  margin-bottom: 6px;
-  font-weight: 500;
+  @include typography($label-medium);
+  color: rgba(255, 255, 255, 0.55);
+  margin-bottom: $space-2;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
 }
 
-.balance :global(.amount) {
-  color: white;
-  font-size: 32px;
+.balanceAmount {
+  color: #ffffff !important;
+  @include typography($headline-large);
   font-weight: 700;
-  letter-spacing: -0.02em;
+  font-feature-settings: 'tnum' on, 'lnum' on;
 }
 
 .accountNumber {
-  font-size: 15px;
-  opacity: 0.7;
-  font-family: "SF Mono", "Fira Code", monospace;
+  @include typography($body-small);
+  color: rgba(255, 255, 255, 0.50);
+  font-family: $font-family-mono;
+  font-feature-settings: 'tnum' on, 'lnum' on;
   letter-spacing: 3px;
   position: relative;
   z-index: 1;
+  font-size: 13px;
 }

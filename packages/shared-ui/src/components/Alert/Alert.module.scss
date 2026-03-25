@@ -1,40 +1,48 @@
+@import '../../styles/design-tokens';
+
 .alert {
   display: flex;
   align-items: flex-start;
-  gap: 14px;
-  padding: 18px 20px;
-  border-radius: 16px;
-  backdrop-filter: blur(10px);
-  border: 1px solid;
+  gap: $space-3;
+  padding: $space-4 $space-5;
+  font-family: $font-family-primary;
 }
 
-// Variants with glassmorphism
+// Variants - left-border accent pattern (modern fintech style)
 .info {
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(37, 99, 235, 0.05) 100%);
-  border-color: rgba(59, 130, 246, 0.2);
-  color: #1e40af;
+  background: #eff6ff;
+  border: none;
+  border-left: 4px solid $alert-info-outline;
+  border-radius: 0 $corner-medium $corner-medium 0;
+  color: $alert-info-on-surface;
 }
 
 .success {
-  background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(5, 150, 105, 0.05) 100%);
-  border-color: rgba(16, 185, 129, 0.2);
-  color: #065f46;
+  background: $alert-success-surface;
+  border: none;
+  border-left: 4px solid $alert-success-outline;
+  border-radius: 0 $corner-medium $corner-medium 0;
+  color: $alert-success-on-surface;
 }
 
 .warning {
-  background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(217, 119, 6, 0.05) 100%);
-  border-color: rgba(245, 158, 11, 0.2);
-  color: #92400e;
+  background: $alert-warning-surface;
+  border: none;
+  border-left: 4px solid $alert-warning-outline;
+  border-radius: 0 $corner-medium $corner-medium 0;
+  color: $alert-warning-on-surface;
 }
 
 .error {
-  background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(220, 38, 38, 0.05) 100%);
-  border-color: rgba(239, 68, 68, 0.2);
-  color: #991b1b;
+  background: $alert-error-surface;
+  border: none;
+  border-left: 4px solid $alert-error-outline;
+  border-radius: 0 $corner-medium $corner-medium 0;
+  color: $alert-error-on-surface;
 }
 
 .icon {
-  font-size: 20px;
+  @include typography($title-medium);
   flex-shrink: 0;
   margin-top: 2px;
 }
@@ -46,36 +54,40 @@
 
 .title {
   display: block;
-  margin-bottom: 4px;
-  font-weight: 700;
-  letter-spacing: -0.01em;
+  margin-bottom: $space-1;
+  @include typography($label-large);
+  font-weight: 600;
 }
 
 .message {
-  font-size: 14px;
-  line-height: 1.6;
+  @include typography($body-medium);
   opacity: 0.9;
 }
 
 .close {
   background: none;
   border: none;
-  font-size: 22px;
-  line-height: 1;
   cursor: pointer;
-  opacity: 0.5;
   padding: 0;
   margin: -2px -4px 0 0;
-  transition: all 0.2s;
-  border-radius: 8px;
+  transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
+  border-radius: $corner-small;
   width: 28px;
   height: 28px;
   display: flex;
   align-items: center;
   justify-content: center;
+  color: currentColor;
+  opacity: 0.7;
+  @include typography($title-medium);
 
   &:hover {
     opacity: 1;
-    background: rgba(0, 0, 0, 0.05);
+    background: rgba(0, 0, 0, 0.08);
+  }
+
+  &:focus-visible {
+    outline: none;
+    background: rgba(0, 0, 0, 0.12);
   }
 }
