@@ -197,16 +197,99 @@ pnpm dev:all
 - [x] Module Federation: 4 remotes + shell host, CORS, error boundary, type declarations
 
 ### To Do
-- [ ] Connect all pages to real BFF APIs (replace mock data)
-- [ ] Dashboard remote: shared Zustand store for user data
-- [ ] Profile page: connect update name + change password APIs
-- [ ] Admin: connect to real admin endpoints
-- [ ] Unit tests: shared-ui components, shared-utils functions
-- [ ] Integration tests: auth flow, transfer flow
-- [ ] E2E tests: Playwright
-- [ ] CI/CD pipeline
-- [ ] Performance: bundle analysis, lazy loading optimization
-- [ ] Accessibility audit (WCAG)
+
+#### Phase 1: Kết nối API (thay mock data)
+
+**Dashboard Remote (apps/dashboard)**
+- [ ] Tạo custom hook `useDashboard()` — gọi `GET /api/dashboard` via apiClient
+- [ ] Replace mock summary data (totalBalance, accountCount, transactionCount) bằng API response
+- [ ] Replace mock accounts list bằng `GET /api/accounts`
+- [ ] Replace mock transactions bằng response `recentTransactions`
+- [ ] Shared Zustand store — pass user data từ shell (hiện đang mock `{ name: 'User' }`)
+- [ ] Loading state: hiển thị Skeleton khi fetching
+- [ ] Error state: hiển thị Alert + nút "Thử lại"
+
+**Accounts Remote (apps/accounts)**
+- [ ] Tạo custom hook `useAccounts()` — gọi `GET /api/accounts`
+- [ ] Accounts page: replace mock data, tính totalBalance từ API
+- [ ] Tạo custom hook `useAccountDetail(id)` — gọi `GET /api/accounts/:id`
+- [ ] AccountDetail: replace mock account info bằng API
+- [ ] Tạo custom hook `useTransactions(accountId, filters)` — gọi `GET /api/accounts/:id/transactions?type=&days=&page=&limit=`
+- [ ] AccountDetail: wire filters (type, days) vào API query params
+- [ ] AccountDetail: wire pagination ("Xem thêm" button tăng page)
+- [ ] Loading/Error states cho cả 2 pages
+
+**Transfer Remote (apps/transfer)**
+- [ ] Step 1: replace mock account dropdown bằng `GET /api/accounts`
+- [ ] Step 1: pre-select account từ `?from=` URL param (match với API data)
+- [ ] Step 2: submit gọi `POST /api/transfers { fromAccountId, toAccountId, amount, description }`
+- [ ] Step 3: hiển thị kết quả từ API response (transaction ID, timestamp)
+- [ ] Handle errors: insufficient balance (400), account not found (404), same account (400)
+- [ ] Toast notification khi transfer thành công
+
+**Admin Remote (apps/admin)**
+- [ ] Admin Dashboard: replace mock KPI data bằng `GET /api/admin/users` (count) + `GET /api/admin/transactions` (count, recent)
+- [ ] Admin Dashboard: replace mock user list bằng API
+- [ ] Admin Dashboard: replace mock transaction feed bằng API
+- [ ] Users page: replace mock table bằng `GET /api/admin/users`
+- [ ] Users page: "Xem tài khoản" button → gọi `GET /api/admin/users/:id/accounts`
+
+**Profile (apps/shell)**
+- [ ] Tạo custom hook `useProfile()` — gọi `GET /api/users/me`
+- [ ] Display real user data (name, email, role, created_at)
+- [ ] Edit name: gọi `PATCH /api/users/me { name }` + toast success
+- [ ] Change password: gọi `PUT /api/users/password { currentPassword, newPassword }` + validation + toast
+- [ ] Loading/Error states
+
+#### Phase 2: Testing
+
+**Unit Tests — shared-utils**
+- [ ] `formatCurrency()` — VND, USD, edge cases (0, negative)
+- [ ] `formatDate()` — short, long, time formats
+- [ ] `formatAccountNumber()` — masking
+- [ ] `formatTransactionAmount()` — deposit (+), withdrawal (-), transfer (-)
+- [ ] `isValidEmail()` — valid, invalid, edge cases
+- [ ] `isValidPassword()` — length, uppercase, number
+
+**Unit Tests — shared-ui components**
+- [ ] Button: render variants, click handler, disabled, loading state
+- [ ] Input: render with label, onChange, error state, disabled
+- [ ] Alert: render variants, close button handler
+- [ ] Toast: showToast triggers render, auto-dismiss after 3s
+- [ ] AccountCard: render props, format balance, click handler
+- [ ] TransactionItem: render type icon, format date, amount color
+
+**Integration Tests**
+- [ ] Auth flow: register → redirect login → login → redirect dashboard
+- [ ] Transfer flow: select account → enter amount → confirm → success
+- [ ] Role guard: user truy cập /admin → redirect /dashboard
+- [ ] Token refresh: expired access token → auto refresh → retry request
+
+**E2E Tests (Playwright)**
+- [ ] Full login/logout flow
+- [ ] Dashboard loads remote module correctly
+- [ ] Transfer 3-step flow end-to-end
+- [ ] Admin dashboard loads for admin role
+
+#### Phase 3: DevOps & Optimization
+
+**CI/CD**
+- [ ] GitHub Actions workflow: lint → typecheck → test → build
+- [ ] Separate build jobs per app (shell, dashboard, accounts, transfer, admin)
+- [ ] Cache pnpm store + node_modules
+
+**Performance**
+- [ ] Bundle analysis per app (rspack-bundle-analyzer)
+- [ ] Lazy loading audit: verify code splitting boundaries
+- [ ] Shared deps size check: ensure no duplicate React bundles
+- [ ] Lighthouse audit: target >90 performance score
+
+**Accessibility**
+- [ ] axe-core audit trên tất cả pages
+- [ ] Keyboard navigation test: Tab order, Enter/Space activation
+- [ ] Screen reader test: ARIA labels, landmarks, live regions
+- [ ] Color contrast check (WCAG AA minimum)
+- [ ] Focus management khi navigate giữa routes
 
 ## Module Federation Setup
 
