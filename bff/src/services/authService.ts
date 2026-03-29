@@ -17,7 +17,7 @@ export const authService = {
     email: string,
     password: string,
     name: string
-  ): Promise<AuthResult> {
+  ): Promise<{ message: string }> {
     // Check if user already exists
     const existingUser = await userRepository.findByEmail(email);
     if (existingUser) {
@@ -33,14 +33,9 @@ export const authService = {
     const passwordHash = await bcrypt.hash(password, 10);
 
     // Create user
-    const user = await userRepository.create(email, name, passwordHash);
+    await userRepository.create(email, name, passwordHash);
 
-    // Generate tokens
-    const tokens = jwtUtils.generateTokenPair(user.id, user.email, user.role);
-
-    // Return user without password
-    const { password_hash, ...userWithoutPassword } = user;
-    return { user: userWithoutPassword, tokens };
+    return { message: "Registration successful" };
   },
 
   /**

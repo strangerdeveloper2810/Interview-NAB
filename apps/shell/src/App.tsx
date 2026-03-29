@@ -1,11 +1,14 @@
 import { type JSX } from 'react';
 import { BrowserRouter } from 'react-router';
-import AppRoute from './routes/AppRoute';
+import { ToastProvider } from '@nab/shared-ui';
+import AppRoute from './routes';
 
 export default function App(): JSX.Element {
   return (
-    <BrowserRouter>
-      <AppRoute />
-    </BrowserRouter>
+    <ToastProvider>
+      <BrowserRouter>
+        <AppRoute />
+      </BrowserRouter>
+    </ToastProvider>
   );
 }

@@ -4,6 +4,8 @@ import { PERMISSIONS } from '@nab/shared-types';
 import { HomeLayout, AuthLayout } from '../layouts';
 import { RoutesApp } from '../constants/route';
 import ProtectedRoute from './ProtectedRoute';
+import GuestRoute from './GuestRoute';
+import { RemoteErrorBoundary } from '../components/RemoteErrorBoundary';
 
 // Lazy load pages
 
@@ -11,31 +13,38 @@ import ProtectedRoute from './ProtectedRoute';
 const LoginLazy = lazy(() => import('../pages/Auth/Login'));
 const RegisterLazy = lazy(() => import('../pages/Auth/Register'));
 
-// App
+// App (local)
 const HomeLazy = lazy(() => import('../pages/Home'));
-const DashboardLazy = lazy(() => import('../pages/Dashboard'));
-const AccountsLazy = lazy(() => import('../pages/Accounts'));
-const AccountDetailLazy = lazy(() => import('../pages/AccountDetail'));
-const TransferLazy = lazy(() => import('../pages/Transfer'));
 const ProfileLazy = lazy(() => import('../pages/Profile'));
 
-// Admin
-const AdminUsersLazy = lazy(() => import('../pages/Admin/Users'));
+// Remote modules (Module Federation)
+const DashboardLazy = lazy(() => import('dashboard/DashboardPage'));
+const AccountsLazy = lazy(() => import('accounts/AccountsPage'));
+const AccountDetailLazy = lazy(() => import('accounts/AccountDetailPage'));
+const TransferLazy = lazy(() => import('transfer/TransferPage'));
+
+// Admin (Remote module)
+const AdminUsersLazy = lazy(() => import('admin/AdminUsersPage'));
+const AdminDashboardLazy = lazy(() => import('admin/AdminDashboardPage'));
 
 const routes: RouteObject[] = [
-  // Public - Auth routes
+  // Public - Auth routes (redirect to dashboard if already logged in)
   {
-    element: <AuthLayout />,
+    element: (
+      <GuestRoute>
+        <AuthLayout />
+      </GuestRoute>
+    ),
     children: [
       { path: RoutesApp.LOGIN, element: <LoginLazy /> },
       { path: RoutesApp.REGISTER, element: <RegisterLazy /> },
     ],
   },
 
-  // Protected - App routes
+  // Protected - User routes
   {
     element: (
-      <ProtectedRoute>
+      <ProtectedRoute allowedRoles={['user']}>
         <HomeLayout />
       </ProtectedRoute>
     ),
@@ -52,11 +61,12 @@ const routes: RouteObject[] = [
   // Admin routes
   {
     element: (
-      <ProtectedRoute requiredPermission={PERMISSIONS.USERS_VIEW}>
+      <ProtectedRoute allowedRoles={['admin']}>
         <HomeLayout />
       </ProtectedRoute>
     ),
     children: [
+      { path: RoutesApp.ADMIN_DASHBOARD, element: <AdminDashboardLazy /> },
       { path: RoutesApp.ADMIN_USERS, element: <AdminUsersLazy /> },
     ],
   },
@@ -68,7 +78,11 @@ const routes: RouteObject[] = [
 const AppRoute: FC = (): JSX.Element => {
   const element = useRoutes(routes);
 
-  return <Suspense fallback={<div>Loading...</div>}>{element}</Suspense>;
+  return (
+    <RemoteErrorBoundary>
+      <Suspense fallback={<div>Loading...</div>}>{element}</Suspense>
+    </RemoteErrorBoundary>
+  );
 };
 
 export default AppRoute;

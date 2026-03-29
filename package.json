@@ -4,7 +4,13 @@
   "scripts": {
     "dev": "pnpm -r --parallel dev",
     "dev:shell": "pnpm --filter shell dev",
+    "dev:dashboard": "pnpm --filter dashboard dev",
+    "dev:accounts": "pnpm --filter accounts dev",
+    "dev:transfer": "pnpm --filter transfer dev",
+    "dev:admin": "pnpm --filter admin dev",
     "dev:bff": "pnpm --filter bff dev",
+    "dev:mf": "pnpm --filter shell --filter dashboard --filter accounts --filter transfer --filter admin --parallel dev",
+    "dev:all": "pnpm --filter shell --filter dashboard --filter accounts --filter transfer --filter admin --filter bff --parallel dev",
     "dev:storybook": "pnpm --filter @nab/shared-ui storybook",
     "build": "pnpm -r build",
     "build:storybook": "pnpm --filter @nab/shared-ui build-storybook",

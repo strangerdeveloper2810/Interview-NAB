@@ -1,25 +1,95 @@
 # NAB Banking Portal - Product Backlog & Interview Topics
 
+> **Last updated:** 2026-03-29 (session 2)
+
+## Progress Summary
+
+| Epic | User Stories | Status | Notes |
+|------|-------------|--------|-------|
+| Epic 1: Authentication | US-001 ~ US-005 | ✅ Done | Login/Register with RHF+Zod, GuestRoute, ProtectedRoute, role-based redirect, apiClient refresh token with mutex |
+| Epic 2: Dashboard | US-006 | 🔶 UI Done | Mock data, remote module (port 3001). Admin có dashboard riêng (monitoring style) |
+| Epic 3: Accounts | US-007 ~ US-008 | 🔶 UI Done | Mock data, remote module (port 3002). Filter by type/time range có trong BFF |
+| Epic 4: Transfer | US-009 | 🔶 UI Done | Mock data, remote module (port 3003). 3-step flow UI hoàn chỉnh |
+| Epic 5: Profile | US-010 | 🔶 UI Done | Mock data. BFF có change password endpoint. Chưa kết nối API |
+| Epic 6: MF Remotes | US-011 ~ US-012+ | ✅ Done | 4 remotes: dashboard(3001), accounts(3002), transfer(3003), admin(3004). ErrorBoundary, type declarations, CORS |
+| Epic 7: Testing | US-013 ~ US-015 | ⬜ Not Started | Jest setup sẵn cho shared-utils |
+| Epic 8: DevOps | US-016 ~ US-017 | 🔶 Partial | Nx done, Docker Compose (postgres+redis+adminer), CI/CD chưa |
+
+## What's Done
+
+### BFF (Backend for Frontend) — Port 4000
+- [x] Auth: login, register (message only), refresh token
+- [x] Users: get/update profile, change password
+- [x] Accounts: list, detail, transactions (paginated + filter by type/days)
+- [x] Transfers: with DB transaction (BEGIN/COMMIT/ROLLBACK)
+- [x] Dashboard: summary endpoint
+- [x] Admin: list users, user accounts, all transactions
+- [x] Zod input validation on all endpoints
+- [x] JWT dual-token (access 15m + refresh 7d), role-based middleware
+- [x] TypeScript clean (0 errors)
+
+### Shell App — Port 3000
+- [x] Auth pages: Login + Register (RHF + Zod validation)
+- [x] AuthLayout (shared gradient bg + logo + card)
+- [x] HomeLayout (nav bar, role-based nav links, user dropdown, mobile menu)
+- [x] GuestRoute (redirect authenticated users away from login/register)
+- [x] ProtectedRoute with allowedRoles (admin vs user route separation)
+- [x] Toast notifications (success/error)
+- [x] Home page (quick nav cards)
+- [x] Profile page (UI only, mock data)
+- [x] RemoteErrorBoundary for MF loading failures
+- [x] apiClient with refresh token mutex + auth endpoint skip
+
+### Remote Apps (Module Federation 2.0 + Rspack)
+- [x] dashboard (3001): User dashboard — summary cards, account list, recent transactions
+- [x] accounts (3002): Accounts list + Account Detail (filters, pagination, copy account number)
+- [x] transfer (3003): 3-step transfer form (input → confirm → result)
+- [x] admin (3004): Admin Dashboard (KPI cards, CSS bar/donut charts, activity feed) + User Management table
+
+### Shared Packages
+- [x] @nab/shared-ui: Button, Input, Card, Alert, Toast, Badge, Avatar, Skeleton, Icon (Eye/EyeOff), AccountCard, TransactionItem, AmountDisplay
+- [x] @nab/shared-utils: apiClient, formatCurrency, formatDate, formatAccountNumber, formatTransactionAmount, isValidEmail, isValidPassword, constants
+- [x] @nab/shared-types: User, Account, Transaction, Auth types, API response types, Permission types
+
+## What's Remaining
+
+### High Priority
+- [ ] Connect all pages to real BFF APIs (replace mock data)
+- [ ] Unit tests: shared-ui components, shared-utils functions
+- [ ] Integration tests: auth flow, transfer flow
+
+### Medium Priority
+- [ ] Dashboard remote: pass user data via shared zustand store (not mock)
+- [ ] Profile page: connect to BFF (update name, change password)
+- [ ] Admin: connect to BFF admin endpoints (real user list, real transactions)
+- [ ] E2E tests with Playwright
+
+### Low Priority
+- [ ] DashboardWidget (compact version for shell)
+- [ ] CI/CD pipeline
+- [ ] Performance: lazy loading optimization, bundle analysis
+- [ ] Accessibility audit (WCAG compliance check)
+
 ## Sprint Backlog
 
 ---
 
-### Epic 1: Authentication
+### Epic 1: Authentication ✅
 
-#### US-001: User Login
+#### US-001: User Login ✅
 **As a** user
 **I want to** login with email and password
 **So that** I can access my banking account
 
 **Acceptance Criteria:**
-- [ ] Hiển thị form login với 2 fields: Email, Password
-- [ ] Email validation: required, format email hợp lệ (regex)
-- [ ] Password validation: required, minimum 6 ký tự
-- [ ] Khi submit form invalid → hiển thị error message dưới mỗi field
-- [ ] Khi submit form valid → call API, hiển thị loading spinner trên button
-- [ ] Login thành công → lưu tokens, redirect về `/dashboard`
-- [ ] Login thất bại → hiển thị error message "Email hoặc mật khẩu không đúng"
-- [ ] Có link "Chưa có tài khoản? Đăng ký" → navigate đến `/register`
+- [x] Hiển thị form login với 2 fields: Email, Password
+- [x] Email validation: required, format email hợp lệ (regex)
+- [x] Password validation: required, minimum 6 ký tự
+- [x] Khi submit form invalid → hiển thị error message dưới mỗi field
+- [x] Khi submit form valid → call API, hiển thị loading spinner trên button
+- [x] Login thành công → lưu tokens, redirect về `/dashboard`
+- [x] Login thất bại → hiển thị error message "Email hoặc mật khẩu không đúng"
+- [x] Có link "Chưa có tài khoản? Đăng ký" → navigate đến `/register`
 
 **UI Specifications:**
 ```
@@ -99,20 +169,21 @@ Spacing: padding 32px, gap giữa fields 24px
 
 ---
 
-#### US-002: User Registration
+#### US-002: User Registration 🔶
 **As a** new user
 **I want to** create an account
 **So that** I can use the banking portal
 
 **Acceptance Criteria:**
-- [ ] Form với 4 fields: Họ tên, Email, Mật khẩu, Xác nhận mật khẩu
-- [ ] Họ tên: required, minimum 2 ký tự
-- [ ] Email: required, format hợp lệ, chưa được đăng ký
-- [ ] Mật khẩu: required, minimum 6 ký tự
-- [ ] Xác nhận mật khẩu: phải khớp với Mật khẩu
-- [ ] Submit thành công → auto login, redirect về `/dashboard`
-- [ ] Email đã tồn tại → hiển thị "Email đã được đăng ký"
-- [ ] Có link "Đã có tài khoản? Đăng nhập" → navigate đến `/login`
+- [x] Form với 4 fields: Họ tên, Email, Mật khẩu, Xác nhận mật khẩu
+- [x] Họ tên: required, minimum 2 ký tự *(Zod: `.min(2, 'Họ tên phải có ít nhất 2 ký tự')`)*
+- [x] Email: required, format hợp lệ, chưa được đăng ký
+- [x] Mật khẩu: required, minimum 6 ký tự
+- [x] Xác nhận mật khẩu: phải khớp với Mật khẩu *(Zod `.refine()` validation)*
+- [ ] Submit thành công → auto login, redirect về `/dashboard` ❌ *Redirect về `/auth/login` + toast "Đăng ký thành công! Vui lòng đăng nhập."*
+- [x] Email đã tồn tại → hiển thị "Email đã được đăng ký" *(409 error handling)*
+- [x] Có link "Đã có tài khoản? Đăng nhập" → navigate đến `/auth/login`
+- [ ] Password strength indicator ❌ *Chỉ có password match indicator (✓/✗), không có Weak/Medium/Strong*
 
 **UI Specifications:**
 ```
@@ -178,18 +249,18 @@ Password Strength: Weak (đỏ) / Medium (vàng) / Strong (xanh)
 
 ---
 
-#### US-003: Auth State Management
+#### US-003: Auth State Management 🔶
 **As a** developer
 **I want to** centralized auth state
 **So that** all components can access user info and auth status
 
 **Acceptance Criteria:**
-- [ ] Zustand store với state: `{ user, tokens, isAuthenticated, isLoading }`
-- [ ] Actions: `login(tokens, user)`, `logout()`, `setUser(user)`
-- [ ] Tokens được persist vào localStorage
-- [ ] Khi app load → check localStorage, restore auth state
-- [ ] `logout()` → clear localStorage, reset state, redirect `/login`
-- [ ] Export hook `useAuth()` để components sử dụng
+- [x] Zustand store với state: `{ user, tokens, isAuthenticated, isLoading }` *(File: `apps/shell/src/stores/authStore.ts`)*
+- [ ] Actions: `login(tokens, user)`, `logout()`, `setUser(user)` ⚠️ *Có `setAuth()` + `logout()` nhưng thiếu `setUser()` riêng. `isLoading` defined nhưng không có action set*
+- [x] Tokens được persist vào localStorage *(Zustand `persist` middleware, key: `"nab-auth"`)*
+- [x] Khi app load → check localStorage, restore auth state *(Zustand auto hydration)*
+- [x] `logout()` → clear localStorage, reset state, redirect `/login`
+- [x] Export hook `useAuthStore()` để components sử dụng
 
 **Technical Notes:**
 | Item | Detail |
@@ -200,18 +271,19 @@ Password Strength: Weak (đỏ) / Medium (vàng) / Strong (xanh)
 
 ---
 
-#### US-004: Protected Routes
+#### US-004: Protected Routes 🔶
 **As a** user
 **I want to** secure pages require login
 **So that** unauthorized users cannot access my data
 
 **Acceptance Criteria:**
-- [ ] Component `ProtectedRoute` wrap các routes cần auth
-- [ ] Nếu `isAuthenticated = false` → redirect về `/login`
-- [ ] Nếu đang loading auth state → hiển thị loading spinner
-- [ ] Sau login thành công → redirect về trang user muốn truy cập ban đầu
-- [ ] Routes public: `/login`, `/register`
-- [ ] Routes protected: `/dashboard`, `/accounts`, `/accounts/:id`, `/transfer`, `/profile`
+- [x] Component `ProtectedRoute` wrap các routes cần auth *(+ role-based + permission-based)*
+- [x] Nếu `isAuthenticated = false` → redirect về `/auth/login` với `returnUrl` state
+- [ ] Nếu đang loading auth state → hiển thị loading spinner ⚠️ *Chỉ render `<div>Loading...</div>`, không có spinner component*
+- [ ] Sau login thành công → redirect về trang user muốn truy cập ban đầu ❌ *`returnUrl` được truyền qua state nhưng Login page KHÔNG đọc/sử dụng — luôn redirect cứng theo role*
+- [x] Routes public: `/auth/login`, `/auth/register` *(wrapped bởi `GuestRoute`)*
+- [x] Routes protected: `/dashboard`, `/accounts`, `/accounts/:id`, `/transfer`, `/profile`
+- [x] **Bonus:** Admin routes `/admin`, `/admin/users` với `allowedRoles=['admin']`
 
 **Technical Notes:**
 | Item | Detail |
@@ -222,17 +294,19 @@ Password Strength: Weak (đỏ) / Medium (vàng) / Strong (xanh)
 
 ---
 
-#### US-005: Auto Refresh Token
+#### US-005: Auto Refresh Token 🔶
 **As a** user
 **I want to** stay logged in
 **So that** I don't have to login repeatedly
 
 **Acceptance Criteria:**
-- [ ] Access token hết hạn sau 15 phút
-- [ ] Trước khi access token hết hạn 1 phút → auto call refresh
-- [ ] Refresh thành công → update tokens trong store
-- [ ] Refresh thất bại (refresh token hết hạn) → logout, redirect `/login`
-- [ ] Khi API trả về 401 → thử refresh token 1 lần, nếu fail → logout
+- [x] Access token hết hạn sau 15 phút *(BFF: `ACCESS_TOKEN_EXPIRES_IN = "15m"`)*
+- [ ] Trước khi access token hết hạn 1 phút → auto call refresh ❌ *Không có proactive refresh, chỉ reactive khi gặp 401*
+- [ ] Refresh thành công → update tokens trong store ❌ **BUG CRITICAL:** `refreshToken()` gửi POST rỗng (không gửi refreshToken trong body) → BFF trả 400. Response mới cũng không được lưu vào store
+- [ ] Refresh thất bại (refresh token hết hạn) → logout, redirect `/login` ⚠️ *Hard redirect `window.location.href` thay vì gọi `authStore.logout()`*
+- [x] Khi API trả về 401 → thử refresh token 1 lần, nếu fail → redirect *(có request dedup tốt)*
+
+> **🐛 CRITICAL BUG:** `apiClient.ts` gọi `POST /auth/refresh` nhưng không gửi `refreshToken` trong body. BFF expect `req.body.refreshToken` → sẽ luôn trả 400. Cần fix: lấy token từ authStore rồi gửi trong body
 
 **Technical Notes:**
 | Item | Detail |
@@ -243,22 +317,24 @@ Password Strength: Weak (đỏ) / Medium (vàng) / Strong (xanh)
 
 ---
 
-### Epic 2: Dashboard
+### Epic 2: Dashboard ✅
 
-#### US-006: Dashboard Overview
+#### US-006: Dashboard Overview ✅
 **As a** user
 **I want to** see overview of my accounts
 **So that** I can quickly check my financial status
 
 **Acceptance Criteria:**
-- [ ] Hiển thị tổng số dư tất cả tài khoản (format: 25.000.000 VND)
-- [ ] Hiển thị số lượng tài khoản đang có
-- [ ] Hiển thị 5 giao dịch gần nhất
-- [ ] Mỗi giao dịch hiển thị: loại (deposit/withdraw/transfer), số tiền, mô tả, ngày giờ
-- [ ] Loading state: hiển thị Skeleton cho từng section
-- [ ] Error state: hiển thị Alert với nút "Thử lại"
-- [ ] Click vào tài khoản → navigate đến `/accounts/:id`
-- [ ] Click "Xem tất cả giao dịch" → navigate đến `/accounts`
+- [x] Hiển thị tổng số dư tất cả tài khoản (format: 25.000.000 VND)
+- [x] Hiển thị số lượng tài khoản đang có
+- [x] Hiển thị 5 giao dịch gần nhất
+- [x] Mỗi giao dịch hiển thị: loại (deposit/withdraw/transfer), số tiền, mô tả, ngày giờ
+- [x] Loading state: hiển thị Skeleton cho từng section
+- [ ] Error state: hiển thị Alert với nút "Thử lại" ⚠️ *Chưa có error state UI*
+- [x] Click vào tài khoản → navigate đến `/accounts/:id`
+- [x] Click "Xem tất cả giao dịch" → navigate đến `/accounts`
+
+> **Note:** Đang dùng mock data, chưa kết nối API `/api/dashboard/summary`
 
 **UI Specifications:**
 ```
@@ -349,21 +425,23 @@ Responsive:
 
 ---
 
-### Epic 3: Accounts Management
+### Epic 3: Accounts Management ✅
 
-#### US-007: Accounts List
+#### US-007: Accounts List ✅
 **As a** user
 **I want to** see all my accounts
 **So that** I can manage my money
 
 **Acceptance Criteria:**
-- [ ] Hiển thị danh sách tất cả tài khoản của user
-- [ ] Mỗi tài khoản hiển thị: tên, loại (savings/checking), số tài khoản, số dư
-- [ ] Số tài khoản được mask: `****7890`
-- [ ] Sort theo số dư giảm dần (mặc định)
-- [ ] Loading: hiển thị 3 Skeleton cards
-- [ ] Empty state: "Bạn chưa có tài khoản nào"
-- [ ] Click vào account → navigate đến `/accounts/:id`
+- [x] Hiển thị danh sách tất cả tài khoản của user
+- [x] Mỗi tài khoản hiển thị: tên, loại (savings/checking), số tài khoản, số dư
+- [x] Số tài khoản được mask: `****7890`
+- [ ] Sort theo số dư giảm dần (mặc định) ❌ *Mock data không được sort — hiển thị theo thứ tự array*
+- [x] Loading: hiển thị 3 Skeleton cards *(LOADING_SKELETON_COUNT = 3)*
+- [x] Empty state: "Bạn chưa có tài khoản nào" *(có icon 🏦 + hint text)*
+- [x] Click vào account → navigate đến `/accounts/:id`
+
+> **Note:** Đang dùng mock data (5 accounts), chưa kết nối API
 
 **UI Specifications:**
 ```
@@ -430,20 +508,23 @@ Responsive: 1 column mobile, 2 columns tablet, 3 columns desktop
 
 ---
 
-#### US-008: Account Detail & Transactions
+#### US-008: Account Detail & Transactions ✅
 **As a** user
 **I want to** see account detail and transaction history
 **So that** I can track my spending
 
 **Acceptance Criteria:**
-- [ ] Hiển thị thông tin tài khoản: tên, loại, số tài khoản đầy đủ, số dư
-- [ ] Hiển thị danh sách giao dịch của tài khoản
-- [ ] Mỗi giao dịch: icon theo loại, mô tả, ngày giờ, số tiền (+/- với màu xanh/đỏ)
-- [ ] Pagination: 10 transactions/page, có nút "Xem thêm"
-- [ ] Filter theo loại giao dịch: Tất cả, Nạp tiền, Rút tiền, Chuyển khoản
-- [ ] Filter theo khoảng thời gian: 7 ngày, 30 ngày, 90 ngày, Tùy chọn
-- [ ] Empty state: "Chưa có giao dịch nào"
-- [ ] Nút "Chuyển khoản" → navigate đến `/transfer?from=:accountId`
+- [x] Hiển thị thông tin tài khoản: tên, loại, số tài khoản đầy đủ, số dư
+- [x] Hiển thị danh sách giao dịch của tài khoản
+- [x] Mỗi giao dịch: icon theo loại, mô tả, ngày giờ, số tiền (+/- với màu xanh/đỏ)
+- [x] Pagination: 10 transactions/page, có nút "Xem thêm"
+- [x] Filter theo loại giao dịch: Tất cả, Nạp tiền, Rút tiền, Chuyển khoản
+- [x] Filter theo khoảng thời gian: 7 ngày, 30 ngày, 90 ngày, Tùy chọn
+- [x] Empty state ⚠️ *Text hơi khác: "Không có giao dịch nào trong khoảng thời gian này." thay vì "Chưa có giao dịch nào"*
+- [x] Nút "Chuyển khoản" → navigate đến `/transfer?from=:accountId`
+- [x] **Bonus:** Copy account number to clipboard với visual feedback (✓ 2 giây)
+
+> **Note:** Đang dùng mock data (30 transactions), transactions grouped by date
 
 **UI Specifications:**
 ```
@@ -520,25 +601,27 @@ Amount colors: positive green-600, negative red-600
 
 ---
 
-### Epic 4: Money Transfer
+### Epic 4: Money Transfer ✅
 
-#### US-009: Transfer Money
+#### US-009: Transfer Money ✅
 **As a** user
 **I want to** transfer money between accounts
 **So that** I can pay or send money to others
 
 **Acceptance Criteria:**
-- [ ] Form với fields: Từ tài khoản (dropdown), Số tài khoản đích, Số tiền, Nội dung
-- [ ] Dropdown "Từ tài khoản" hiển thị tên + số dư
-- [ ] Nếu URL có `?from=:accountId` → pre-select tài khoản đó
-- [ ] Số tiền: required, > 0, <= số dư tài khoản nguồn
-- [ ] Số tài khoản đích: required, 10-20 ký tự số, khác tài khoản nguồn
-- [ ] Nội dung: optional, max 100 ký tự
-- [ ] Hiển thị preview trước khi submit: từ, đến, số tiền, phí (nếu có)
-- [ ] Xác nhận chuyển khoản bằng modal confirm
-- [ ] Thành công → hiển thị thông báo + mã giao dịch, nút "Về Dashboard"
-- [ ] Thất bại → hiển thị error message cụ thể
-- [ ] Số dư không đủ → "Số dư không đủ để thực hiện giao dịch"
+- [x] Form với fields: Từ tài khoản (dropdown), Số tài khoản đích, Số tiền, Nội dung
+- [x] Dropdown "Từ tài khoản" hiển thị tên + số dư
+- [x] Nếu URL có `?from=:accountId` → pre-select tài khoản đó
+- [x] Số tiền: required, > 0, <= số dư tài khoản nguồn
+- [ ] Số tài khoản đích: required, 9-14 ký tự số ⚠️ *Validate format OK nhưng thiếu check khác tài khoản nguồn*
+- [x] Nội dung: optional, max 100 ký tự *(maxLength={100} + character counter)*
+- [x] Hiển thị preview trước khi submit: từ, đến, số tiền, phí, tổng, nội dung *(Step 2)*
+- [x] Xác nhận chuyển khoản bằng step-based flow (3 bước thay vì modal)
+- [x] Thành công → hiển thị mã giao dịch + timestamp + nút "Về trang chủ" + "Chuyển khoản mới"
+- [x] Thất bại → hiển thị Alert error message + nút "Thử lại" + "Về trang chủ"
+- [x] Số dư không đủ → "Số dư không đủ để thực hiện giao dịch"
+
+> **Note:** 3-step flow (Form → Confirm → Result) với ProgressIndicator. Mock 80% success rate. Quick amount buttons (100K, 500K, 1M, 2M, 5M). Thiếu: recipient lookup (tên + ngân hàng), download receipt, share button
 
 **UI Specifications:**
 ```
@@ -697,21 +780,23 @@ ERROR STATE:
 
 ---
 
-### Epic 5: User Profile
+### Epic 5: User Profile ✅
 
-#### US-010: View & Edit Profile
+#### US-010: View & Edit Profile 🔶
 **As a** user
 **I want to** view and update my profile
 **So that** my information is up to date
 
 **Acceptance Criteria:**
-- [ ] Hiển thị thông tin: Avatar (chữ cái đầu), Họ tên, Email, Ngày tạo tài khoản
-- [ ] Email chỉ hiển thị, không cho edit
-- [ ] Nút "Chỉnh sửa" → enable edit mode cho Họ tên
-- [ ] Save thành công → hiển thị toast "Cập nhật thành công"
-- [ ] Section đổi mật khẩu riêng với fields: Mật khẩu hiện tại, Mật khẩu mới, Xác nhận
-- [ ] Mật khẩu mới phải khác mật khẩu hiện tại
-- [ ] Đổi mật khẩu thành công → hiển thị toast, clear form
+- [x] Hiển thị thông tin: Avatar (chữ cái đầu), Họ tên, Email, Ngày tạo tài khoản *(Avatar component size="xl")*
+- [x] Email chỉ hiển thị, không cho edit *(render as `<span>`, không phải input)*
+- [x] Nút "Chỉnh sửa" → enable edit mode cho Họ tên *(local state: isEditing + editedName)*
+- [ ] Save thành công → hiển thị toast "Cập nhật thành công" ❌ *`handleSaveName()` chỉ `setIsEditing(false)` — comment "In real scenario, call API". Toast component tồn tại trong shared-ui nhưng không import/dùng*
+- [x] Section đổi mật khẩu riêng với fields: Mật khẩu hiện tại, Mật khẩu mới, Xác nhận *(3 fields + visibility toggles)*
+- [ ] Mật khẩu mới phải khác mật khẩu hiện tại ❌ *Không có validation, chỉ check all fields filled*
+- [ ] Đổi mật khẩu thành công → hiển thị toast, clear form ❌ *`handleChangePassword()` chỉ reset state — comment "In real scenario, call API"*
+
+> **Note:** UI hoàn chỉnh nhưng hoàn toàn UI-only. Cần: import Toast, kết nối API `PUT /api/users/profile` + `POST /api/users/change-password`, thêm validation new !== current password
 
 **Technical Notes:**
 | Item | Detail |
@@ -724,21 +809,21 @@ ERROR STATE:
 
 ---
 
-### Epic 6: Micro-frontend Remotes
+### Epic 6: Micro-frontend Remotes ✅
 
-#### US-011: Dashboard Remote Module
+#### US-011: Dashboard Remote Module 🔶
 **As a** developer
 **I want to** separate Dashboard into remote module
 **So that** it can be deployed independently
 
 **Acceptance Criteria:**
-- [ ] Tạo `apps/dashboard/` với Rspack + Module Federation config
-- [ ] Expose components: `DashboardPage`, `DashboardWidget`
-- [ ] `DashboardWidget`: compact version hiển thị total balance + quick actions
-- [ ] Shell app load Dashboard remote dynamically
-- [ ] Fallback UI khi remote chưa load xong
-- [ ] Error boundary khi remote load fail
-- [ ] Shared dependencies: React, react-router, @nab/shared-ui
+- [x] Tạo `apps/dashboard/` với Rspack + Module Federation config *(port 3001)*
+- [ ] Expose components: `DashboardPage`, `DashboardWidget` ⚠️ *Chỉ expose `./DashboardPage`, không có Widget*
+- [ ] `DashboardWidget`: compact version hiển thị total balance + quick actions ❌ *Không tồn tại*
+- [x] Shell app load Dashboard remote dynamically *(React.lazy + Suspense)*
+- [x] Fallback UI khi remote chưa load xong *(Suspense fallback)*
+- [ ] Error boundary khi remote load fail ❌ *Không có ErrorBoundary component*
+- [x] Shared dependencies: React, react-router, zustand *(singleton mode)*
 
 **Technical Notes:**
 | Item | Detail |
@@ -750,18 +835,22 @@ ERROR STATE:
 
 ---
 
-#### US-012: Accounts Remote Module
+#### US-012: Accounts Remote Module ✅
 **As a** developer
 **I want to** separate Accounts into remote module
 **So that** it can be deployed independently
 
 **Acceptance Criteria:**
-- [ ] Tạo `apps/accounts/` với Rspack + Module Federation config
-- [ ] Expose: `AccountsPage`, `AccountDetailPage`, `TransferPage`
-- [ ] Shell app consume via dynamic import với React.lazy
-- [ ] Routing vẫn hoạt động khi navigate giữa các pages
-- [ ] Auth state được share từ shell (không duplicate)
-- [ ] Loading fallback cho mỗi lazy component
+- [x] Tạo `apps/accounts/` với Rspack + Module Federation config
+- [x] Expose: `AccountsPage`, `AccountDetailPage` *(TransferPage tách thành remote riêng `apps/transfer/`)*
+- [x] Shell app consume via dynamic import với React.lazy
+- [x] Routing vẫn hoạt động khi navigate giữa các pages
+- [x] Auth state được share từ shell (không duplicate)
+- [x] Loading fallback cho mỗi lazy component
+
+> **Note:** Ngoài backlog gốc, đã thêm 2 remote modules:
+> - `apps/transfer/` (port 3003) - Transfer remote
+> - `apps/admin/` (port 3004) - Admin remote (Dashboard + Users management)
 
 **Technical Notes:**
 | Item | Detail |
@@ -773,9 +862,9 @@ ERROR STATE:
 
 ---
 
-### Epic 7: Testing
+### Epic 7: Testing ⬜
 
-#### US-013: Unit Tests - Shared UI Components
+#### US-013: Unit Tests - Shared UI Components ⬜
 **As a** developer
 **I want to** unit test shared components
 **So that** they work correctly across apps
@@ -797,7 +886,7 @@ ERROR STATE:
 
 ---
 
-#### US-014: Integration Tests - Auth Flow
+#### US-014: Integration Tests - Auth Flow ⬜
 **As a** developer
 **I want to** integration test auth flow
 **So that** login/register works end-to-end
@@ -818,7 +907,7 @@ ERROR STATE:
 
 ---
 
-#### US-015: E2E Tests
+#### US-015: E2E Tests ⬜
 **As a** QA
 **I want to** E2E test critical user journeys
 **So that** app works correctly in real browser
@@ -840,19 +929,19 @@ ERROR STATE:
 
 ---
 
-### Epic 8: DevOps & Infrastructure
+### Epic 8: DevOps & Infrastructure 🔶
 
-#### US-016: Nx Migration
+#### US-016: Nx Migration ✅
 **As a** developer
 **I want to** migrate to Nx monorepo
 **So that** builds are faster with caching
 
 **Acceptance Criteria:**
-- [ ] Install và init Nx trong existing monorepo
-- [ ] Configure project.json cho shell, shared-ui, bff
-- [ ] `nx build shell` hoạt động với cache
-- [ ] `nx affected:build` chỉ build packages thay đổi
-- [ ] `nx graph` hiển thị dependency graph
+- [x] Install và init Nx trong existing monorepo
+- [x] Configure project.json cho shell, shared-ui, bff
+- [x] `nx build shell` hoạt động với cache
+- [x] `nx affected:build` chỉ build packages thay đổi
+- [x] `nx graph` hiển thị dependency graph
 - [ ] CI sử dụng Nx Cloud cache (optional)
 
 **Technical Notes:**
@@ -863,7 +952,7 @@ ERROR STATE:
 
 ---
 
-#### US-017: CI/CD Pipeline
+#### US-017: CI/CD Pipeline ⬜
 **As a** developer
 **I want to** automate build and test
 **So that** code quality is ensured
@@ -931,6 +1020,44 @@ ERROR STATE:
 | Keyboard | US-009 Transfer | Focus management, tab order |
 
 ---
+
+## Remaining Work / Known Gaps
+
+### 🐛 Bugs
+
+| Item | Severity | File | Notes |
+|------|----------|------|-------|
+| Token refresh gửi body rỗng | **CRITICAL** | `packages/shared-utils/src/apiClient.ts` | BFF expect `req.body.refreshToken` nhưng client gửi POST rỗng → luôn 400. Cần lấy token từ authStore |
+| Refresh không lưu token mới | **CRITICAL** | `packages/shared-utils/src/apiClient.ts` | Response mới không được parse/lưu vào authStore |
+| Hard redirect thay vì logout | High | `packages/shared-utils/src/apiClient.ts` | `window.location.href` thay vì `authStore.logout()` |
+| Login không đọc returnUrl | Medium | `apps/shell/src/pages/Auth/Login/Login.tsx` | ProtectedRoute truyền `returnUrl` nhưng Login page không dùng |
+
+### ⚠️ Missing Features
+
+| Item | Priority | Notes |
+|------|----------|-------|
+| Kết nối API thật (thay mock data) | High | Dashboard, Accounts, Transfer, Admin đang dùng mock |
+| Profile API integration | High | `handleSaveName()` + `handleChangePassword()` chỉ là stub |
+| Profile: import Toast component | Medium | Toast tồn tại trong shared-ui nhưng không import |
+| Accounts sort by balance | Medium | Mock data không sorted, cần `.sort((a,b) => b.balance - a.balance)` |
+| ErrorBoundary cho remote modules | Medium | Không có fallback UI khi remote fail |
+| Dashboard error state | Medium | Không có Alert + "Thử lại" button |
+| Password strength indicator | Low | Register page thiếu Weak/Medium/Strong indicator |
+| DashboardWidget compact | Low | Chỉ có full page, không có widget |
+| Auto login sau register | Low | Redirect về `/auth/login` thay vì auto login |
+| Transfer: check recipient ≠ source | Low | Validate format OK nhưng không check trùng |
+| Transfer: recipient name lookup | Low | Spec có auto-lookup tên + ngân hàng nhưng chưa implement |
+| Loading spinner cho ProtectedRoute | Low | Chỉ render `<div>Loading...</div>` |
+| Profile: validate new ≠ current password | Low | Không check mật khẩu mới khác cũ |
+
+### ⬜ Not Started
+
+| Item | Priority | Notes |
+|------|----------|-------|
+| Unit Tests (US-013) | High | shared-ui components chưa có test nào |
+| Integration Tests (US-014) | High | Auth flow chưa có test |
+| E2E Tests (US-015) | Medium | Playwright chưa setup |
+| CI/CD Pipeline (US-017) | Low | GitHub Actions chưa có |
 
 ## Definition of Done (DoD)
 

@@ -1,516 +1,554 @@
 # NAB Banking Portal
 
-Dự án demo Micro-frontend Banking Portal phục vụ phỏng vấn vị trí Frontend Engineer tại NAB Vietnam.
+Micro-frontend Banking Portal demo — NAB Vietnam Frontend Engineer interview preparation.
 
-## Tổng quan
+## Architecture
 
-NAB Banking Portal là một ứng dụng ngân hàng số được xây dựng theo kiến trúc Micro-frontend, sử dụng Module Federation để chia sẻ components và modules giữa các ứng dụng. Dự án bao gồm Shell app (Host), Shared UI package, và BFF (Backend for Frontend) với đầy đủ các tính năng authentication, quản lý tài khoản, giao dịch và chuyển tiền.
+```
+                              Shell (Host)
+                             localhost:3000
+                    ┌────────────┼────────────┐
+                    │            │            │
+               ┌────┴────┐ ┌────┴────┐ ┌────┴────┐ ┌─────────┐
+               │Dashboard│ │Accounts │ │Transfer │ │  Admin  │
+               │  :3001  │ │  :3002  │ │  :3003  │ │  :3004  │
+               └─────────┘ └─────────┘ └─────────┘ └─────────┘
+                                    │
+                              ┌─────┴─────┐
+                              │  BFF API  │
+                              │   :4000   │
+                              └─────┬─────┘
+                           ┌────────┼────────┐
+                           │ PostgreSQL │ Redis │
+                           │   :5432    │ :6379 │
+                           └────────────┴───────┘
+```
+
+| App | Port | Responsibility |
+|-----|------|----------------|
+| **shell** | 3000 | Host app — Auth, Home, Profile, routing, layouts |
+| **dashboard** | 3001 | User dashboard — balance overview, recent transactions |
+| **accounts** | 3002 | Account list + Account detail (transactions, filters) |
+| **transfer** | 3003 | Money transfer — 3-step form (input → confirm → result) |
+| **admin** | 3004 | Admin dashboard (monitoring/charts) + User management |
+| **bff** | 4000 | Express.js Backend for Frontend |
 
 ## Tech Stack
 
-### Frontend
-- **React 18** + **TypeScript** - UI framework và type safety
-- **Rspack** - Build tool hiệu năng cao (Rust-based)
-- **Module Federation** - Chia sẻ modules giữa các micro-frontends
-- **CSS Modules / SCSS** - Styling với scoped CSS
-- **Jest** + **React Testing Library** - Unit testing
+| Layer | Technology |
+|-------|-----------|
+| Framework | React 18 + TypeScript |
+| Build | Rspack + Module Federation 2.0 (`@module-federation/enhanced`) |
+| Styling | CSS Modules / SCSS (BEM naming) |
+| State | Zustand (auth) with persist middleware |
+| Forms | React Hook Form + Zod |
+| BFF | Express.js + PostgreSQL + JWT (access + refresh tokens) |
+| Validation | Zod (BFF + Frontend) |
+| Monorepo | pnpm workspaces |
+| Infra | Docker Compose (PostgreSQL 16, Redis 7, Adminer) |
+| Testing | Jest + React Testing Library (setup ready) |
+| Docs | Storybook 8.x |
 
-### Backend (BFF)
-- **Express.js** - Node.js web framework
-- **PostgreSQL** - Relational database
-- **Redis** - Caching và session management
-- **JWT** - Authentication với access + refresh tokens
-
-### DevOps & Tooling
-- **pnpm workspaces** - Monorepo management
-- **Docker Compose** - Container orchestration
-- **Storybook 8.x** - Component documentation và development
-
-## Cấu trúc dự án
+## Project Structure
 
 ```
 nab-banking-portal/
 ├── apps/
-│   └── shell/                    # Host app với Module Federation
-│       ├── src/
-│       │   ├── components/       # Shell-specific components
-│       │   ├── pages/            # Page components
-│       │   ├── hooks/            # Custom React hooks
-│       │   ├── services/         # API services
-│       │   ├── store/            # State management
-│       │   └── bootstrap.tsx     # Module Federation bootstrap
-│       └── rspack.config.ts      # Rspack + Module Federation config
-│
-├── packages/
-│   └── shared-ui/                # Shared UI components
-│       ├── src/
-│       │   ├── components/       # Reusable components
-│       │   │   ├── Button/
-│       │   │   ├── Card/
-│       │   │   ├── Input/
-│       │   │   ├── AccountCard/
-│       │   │   ├── TransactionItem/
-│       │   │   ├── AmountDisplay/
-│       │   │   ├── Badge/
-│       │   │   ├── Avatar/
-│       │   │   ├── Alert/
-│       │   │   └── Skeleton/
-│       │   └── index.ts          # Public exports
-│       └── .storybook/           # Storybook configuration
-│
-├── bff/                          # Backend for Frontend
+│   ├── shell/              # Host — Auth, Home, Profile, layouts, routing
+│   ├── dashboard/          # Remote — User dashboard
+│   ├── accounts/           # Remote — Accounts + Account Detail
+│   ├── transfer/           # Remote — Money transfer
+│   └── admin/              # Remote — Admin dashboard + User management
+├── bff/                    # Backend for Frontend (Express.js)
 │   ├── src/
-│   │   ├── controllers/          # Request handlers
-│   │   ├── services/             # Business logic
-│   │   ├── repositories/         # Data access layer
-│   │   ├── middlewares/          # Auth, validation, error handling
-│   │   ├── routes/               # API routes
-│   │   └── utils/                # Helpers và utilities
-│   └── prisma/                   # Database schema và migrations
-│
-├── docker-compose.yml            # Docker services configuration
-├── pnpm-workspace.yaml           # pnpm workspaces config
-└── package.json                  # Root package.json
+│   │   ├── controllers/    # Request handlers
+│   │   ├── services/       # Business logic
+│   │   ├── repositories/   # Data access (PostgreSQL)
+│   │   ├── middleware/     # Auth (JWT), validation (Zod), error handling
+│   │   ├── routes/         # API route definitions
+│   │   ├── schemas/        # Zod validation schemas
+│   │   ├── config/         # Database config
+│   │   ├── types/          # TypeScript types
+│   │   └── utils/          # JWT utilities
+│   └── scripts/init.sql    # DB schema + seed data
+├── packages/
+│   ├── shared-ui/          # Shared components (Button, Input, Card, Toast, etc.)
+│   ├── shared-utils/       # apiClient, formatting, validation utilities
+│   └── shared-types/       # TypeScript type definitions
+├── docs/
+│   ├── backlog/            # Product backlog & progress tracking
+│   └── plans/              # Technical plans & flow diagrams
+└── docker-compose.yml      # PostgreSQL + Redis + Adminer
 ```
 
-## Bắt đầu
+## Quick Start
 
-### Yêu cầu hệ thống
+### Prerequisites
 
-- Node.js >= 18.x
-- pnpm >= 8.x
-- Docker và Docker Compose
+- Node.js >= 18
+- pnpm >= 8
+- Docker + Docker Compose
 
-### Cài đặt
-
-1. **Clone repository và cài đặt dependencies:**
+### Setup
 
 ```bash
-cd nab-banking-portal
+# 1. Install dependencies
 pnpm install
+
+# 2. Start infrastructure (PostgreSQL, Redis, Adminer)
+docker compose up -d
+
+# 3. Init database (schema + seed data)
+docker exec -i nab-postgres psql -U nab_user -d nab_banking < bff/scripts/init.sql
+
+# 4. Start all apps
+pnpm dev:all
 ```
 
-2. **Khởi động Docker services (PostgreSQL, Redis):**
+### Access
 
-```bash
-docker-compose up -d
-```
+| Service | URL |
+|---------|-----|
+| Shell (main app) | http://localhost:3000 |
+| Dashboard remote | http://localhost:3001 |
+| Accounts remote | http://localhost:3002 |
+| Transfer remote | http://localhost:3003 |
+| Admin remote | http://localhost:3004 |
+| BFF API | http://localhost:4000 |
+| Adminer (DB UI) | http://localhost:8080 |
 
-3. **Cấu hình environment variables:**
+### Test Accounts
 
-```bash
-# Tạo file .env trong thư mục bff/
-cp bff/.env.example bff/.env
-```
-
-4. **Chạy database migrations (nếu có Prisma):**
-
-```bash
-cd bff
-pnpm prisma migrate dev
-```
-
-5. **Khởi động development servers:**
-
-```bash
-# Từ root directory
-pnpm dev
-```
-
-### Truy cập ứng dụng
-
-- **Shell App:** http://localhost:3000
-- **BFF API:** http://localhost:4000
-- **Storybook:** http://localhost:6006
-- **Adminer (DB Admin):** http://localhost:8080
+| Email | Password | Role |
+|-------|----------|------|
+| admin@nab.com | 123456 | Admin |
+| john@nab.com | 123456 | User |
+| jane@nab.com | 123456 | User |
 
 ## Scripts
 
-| Script | Mô tả |
-|--------|-------|
-| `pnpm dev` | Khởi động tất cả apps (shell, bff, storybook) |
-| `pnpm dev:shell` | Chỉ khởi động Shell app (port 3000) |
-| `pnpm dev:bff` | Chỉ khởi động BFF server (port 4000) |
-| `pnpm dev:storybook` | Khởi động Storybook (port 6006) |
-| `pnpm build` | Build tất cả packages và apps |
-| `pnpm test` | Chạy test suites |
-| `pnpm lint` | Chạy ESLint |
-| `pnpm typecheck` | Kiểm tra TypeScript types |
+| Script | Description |
+|--------|-------------|
+| `pnpm dev:all` | Start all apps + BFF (5 processes) |
+| `pnpm dev:mf` | Start shell + all remotes (no BFF) |
+| `pnpm dev:shell` | Shell only (port 3000) |
+| `pnpm dev:dashboard` | Dashboard remote (port 3001) |
+| `pnpm dev:accounts` | Accounts remote (port 3002) |
+| `pnpm dev:transfer` | Transfer remote (port 3003) |
+| `pnpm dev:admin` | Admin remote (port 3004) |
+| `pnpm dev:bff` | BFF server (port 4000) |
+| `pnpm dev:storybook` | Storybook (port 6006) |
+| `pnpm build` | Build all apps |
+| `pnpm test` | Run all tests |
 
 ## API Endpoints
 
-### Authentication
+### Auth (Public)
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/auth/register` | Register (returns message only) |
+| POST | `/api/auth/login` | Login (returns user + tokens) |
+| POST | `/api/auth/refresh` | Refresh access token |
 
-| Method | Endpoint | Mô tả |
-|--------|----------|-------|
-| POST | `/api/auth/register` | Đăng ký tài khoản mới |
-| POST | `/api/auth/login` | Đăng nhập, trả về access + refresh tokens |
-| POST | `/api/auth/refresh` | Làm mới access token |
-| POST | `/api/auth/logout` | Đăng xuất, invalidate tokens |
+### User (Authenticated)
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/users/me` | Get current user |
+| PATCH | `/api/users/me` | Update name |
+| PUT | `/api/users/password` | Change password |
 
-### User Profile
+### Accounts (Authenticated)
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/accounts` | List user accounts |
+| GET | `/api/accounts/:id` | Account detail |
+| GET | `/api/accounts/:id/transactions` | Transactions (filter: `?type=deposit&days=30&page=1&limit=10`) |
 
-| Method | Endpoint | Mô tả |
-|--------|----------|-------|
-| GET | `/api/user/profile` | Lấy thông tin user hiện tại |
-| PUT | `/api/user/profile` | Cập nhật thông tin user |
+### Transfer (Authenticated)
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/transfers` | Transfer money (DB transaction) |
 
-### Accounts
+### Dashboard (Authenticated)
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/dashboard` | Dashboard summary |
 
-| Method | Endpoint | Mô tả |
-|--------|----------|-------|
-| GET | `/api/accounts` | Danh sách tài khoản của user |
-| GET | `/api/accounts/:id` | Chi tiết một tài khoản |
+### Admin (Admin role only)
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/admin/users` | List all users |
+| GET | `/api/admin/users/:id/accounts` | User's accounts |
+| GET | `/api/admin/transactions` | All transactions |
 
-### Transactions
+## Task Board
 
-| Method | Endpoint | Mô tả |
-|--------|----------|-------|
-| GET | `/api/transactions` | Lịch sử giao dịch (có pagination) |
-| GET | `/api/transactions/:id` | Chi tiết một giao dịch |
+### Done
+- [x] BFF: Auth (login, register, refresh), Users, Accounts, Transfers (DB transaction), Dashboard, Admin
+- [x] BFF: Zod validation, JWT dual-token, role-based middleware, error handling
+- [x] Shell: Auth pages (RHF + Zod), AuthLayout, HomeLayout (role-based nav)
+- [x] Shell: GuestRoute, ProtectedRoute (allowedRoles), Toast notifications
+- [x] Shell: apiClient with refresh token mutex + auth endpoint skip
+- [x] Remote: Dashboard (user overview, summary cards, accounts, transactions)
+- [x] Remote: Accounts (list + detail with filters/pagination)
+- [x] Remote: Transfer (3-step form)
+- [x] Remote: Admin (monitoring dashboard with CSS charts + user management table)
+- [x] Shared: UI components, utils, types packages
+- [x] Module Federation: 4 remotes + shell host, CORS, error boundary, type declarations
 
-### Transfers
+### To Do
+- [ ] Connect all pages to real BFF APIs (replace mock data)
+- [ ] Dashboard remote: shared Zustand store for user data
+- [ ] Profile page: connect update name + change password APIs
+- [ ] Admin: connect to real admin endpoints
+- [ ] Unit tests: shared-ui components, shared-utils functions
+- [ ] Integration tests: auth flow, transfer flow
+- [ ] E2E tests: Playwright
+- [ ] CI/CD pipeline
+- [ ] Performance: bundle analysis, lazy loading optimization
+- [ ] Accessibility audit (WCAG)
 
-| Method | Endpoint | Mô tả |
-|--------|----------|-------|
-| POST | `/api/transfers` | Tạo lệnh chuyển tiền mới |
-| GET | `/api/transfers/:id` | Trạng thái chuyển tiền |
-
-### Dashboard
-
-| Method | Endpoint | Mô tả |
-|--------|----------|-------|
-| GET | `/api/dashboard` | Dữ liệu tổng hợp cho dashboard |
-
-## Docker Services
-
-```yaml
-# docker-compose.yml
-services:
-  postgres:
-    image: postgres:15
-    ports:
-      - "5432:5432"
-    environment:
-      POSTGRES_USER: nab
-      POSTGRES_PASSWORD: nab123
-      POSTGRES_DB: nab_banking
-
-  redis:
-    image: redis:7-alpine
-    ports:
-      - "6379:6379"
-
-  adminer:
-    image: adminer
-    ports:
-      - "8080:8080"
-```
-
-### Kết nối Database
-
-- **PostgreSQL:** `postgresql://nab:nab123@localhost:5432/nab_banking`
-- **Redis:** `redis://localhost:6379`
-- **Adminer:** http://localhost:8080 (Server: postgres, User: nab, Password: nab123)
-
-## Interview Topics Coverage
-
-Dự án này được thiết kế để demonstrate kiến thức về các chủ đề phỏng vấn Frontend Engineer:
-
-### 1. Micro-frontend Architecture
-- Module Federation configuration và bootstrap pattern
-- Shared dependencies management
-- Remote/Host application communication
-
-### 2. React & TypeScript
-- React 18 features (Suspense, Concurrent rendering)
-- TypeScript strict mode và type safety
-- Custom hooks pattern
-- Component composition
-
-### 3. State Management
-- Context API / Zustand / Redux Toolkit
-- Server state với React Query/SWR
-- Authentication state handling
-
-### 4. Styling Architecture
-- CSS Modules với SCSS
-- Design tokens và theming
-- Responsive design
-- Modern UI (gradients, glassmorphism)
-
-### 5. Testing
-- Unit testing với Jest
-- Component testing với React Testing Library
-- Test coverage và best practices
-
-### 6. Build Tools & Performance
-- Rspack configuration
-- Code splitting và lazy loading
-- Bundle optimization
-
-### 7. Backend Integration
-- RESTful API design
-- JWT authentication flow (access + refresh tokens)
-- BFF pattern (Controller → Service → Repository)
-- Database design với PostgreSQL
-- Caching strategy với Redis
-
-### 8. DevOps & Tooling
-- Monorepo với pnpm workspaces
-- Docker containerization
-- Environment configuration
-
-### 9. Component Library
-- Storybook documentation
-- Reusable component design
-- Props và variants pattern
-- Accessibility (a11y)
-
----
-
-## BFF Architecture (Backend for Frontend)
+## Module Federation Setup
 
 ### Tổng quan
 
-BFF là layer trung gian giữa Frontend và Backend services, được thiết kế riêng cho nhu cầu của Frontend application.
+Dự án sử dụng **Module Federation 2.0** (`@module-federation/enhanced/rspack`) để chia app thành các remote modules độc lập. Shell app (Host) consume các remote modules qua `mf-manifest.json`.
+
+### Shell App (Host) — Port 3000
 
 ```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                           FRONTEND (Shell App)                              │
-│                              localhost:3000                                 │
-└─────────────────────────────────────────────────────────────────────────────┘
-                                      │
-                                      │ HTTP Requests
-                                      │ (REST API)
-                                      ▼
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                              BFF LAYER                                      │
-│                            localhost:4000                                   │
-│                                                                             │
-│  ┌─────────────────────────────────────────────────────────────────────┐   │
-│  │                         MIDDLEWARE                                   │   │
-│  │  ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌───────────────┐  │   │
-│  │  │  CORS   │→│ Helmet  │→│  JSON   │→│ Logger  │→│ Auth (JWT)    │  │   │
-│  │  └─────────┘ └─────────┘ └─────────┘ └─────────┘ └───────────────┘  │   │
-│  └─────────────────────────────────────────────────────────────────────┘   │
-│                                      │                                      │
-│                                      ▼                                      │
-│  ┌─────────────────────────────────────────────────────────────────────┐   │
-│  │                          ROUTES                                      │   │
-│  │  /api/auth/*  │  /api/users/*  │  /api/accounts/*  │  /api/transfers │   │
-│  └─────────────────────────────────────────────────────────────────────┘   │
-│                                      │                                      │
-│                                      ▼                                      │
-│  ┌─────────────────────────────────────────────────────────────────────┐   │
-│  │                       CONTROLLERS                                    │   │
-│  │              (Handle HTTP Request/Response)                          │   │
-│  │  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐   │   │
-│  │  │   Auth   │ │   User   │ │ Account  │ │ Transfer │ │Dashboard │   │   │
-│  │  └──────────┘ └──────────┘ └──────────┘ └──────────┘ └──────────┘   │   │
-│  └─────────────────────────────────────────────────────────────────────┘   │
-│                                      │                                      │
-│                                      ▼                                      │
-│  ┌─────────────────────────────────────────────────────────────────────┐   │
-│  │                        SERVICES                                      │   │
-│  │                   (Business Logic Layer)                             │   │
-│  │  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────────────────┐    │   │
-│  │  │   Auth   │ │   User   │ │ Account  │ │      Dashboard       │    │   │
-│  │  │ Service  │ │ Service  │ │ Service  │ │       Service        │    │   │
-│  │  └──────────┘ └──────────┘ └──────────┘ └──────────────────────┘    │   │
-│  └─────────────────────────────────────────────────────────────────────┘   │
-│                                      │                                      │
-│                                      ▼                                      │
-│  ┌─────────────────────────────────────────────────────────────────────┐   │
-│  │                      REPOSITORIES                                    │   │
-│  │                    (Data Access Layer)                               │   │
-│  │  ┌────────────────┐ ┌────────────────┐ ┌────────────────────────┐   │   │
-│  │  │ UserRepository │ │AccountRepository│ │ TransactionRepository │   │   │
-│  │  └────────────────┘ └────────────────┘ └────────────────────────┘   │   │
-│  └─────────────────────────────────────────────────────────────────────┘   │
-│                                                                             │
-└─────────────────────────────────────────────────────────────────────────────┘
-                                      │
-                                      ▼
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                             DATABASE LAYER                                  │
-│                                                                             │
-│   ┌─────────────────────────────┐     ┌─────────────────────────────────┐  │
-│   │        PostgreSQL           │     │            Redis                │  │
-│   │       localhost:5432        │     │        localhost:6379           │  │
-│   │                             │     │                                 │  │
-│   │  ┌─────────┐ ┌───────────┐  │     │  • Session cache               │  │
-│   │  │  users  │ │  accounts │  │     │  • Rate limiting               │  │
-│   │  └─────────┘ └───────────┘  │     │  • Refresh tokens              │  │
-│   │  ┌─────────────────────┐    │     │                                 │  │
-│   │  │    transactions     │    │     │                                 │  │
-│   │  └─────────────────────┘    │     │                                 │  │
-│   └─────────────────────────────┘     └─────────────────────────────────┘  │
-│                                                                             │
-└─────────────────────────────────────────────────────────────────────────────┘
+apps/shell/
+├── src/
+│   ├── @types/
+│   │   └── remotes.d.ts       # Type declarations cho remote modules
+│   ├── components/
+│   │   └── RemoteErrorBoundary.tsx  # Error boundary khi remote load fail
+│   ├── routes/
+│   │   ├── AppRoute.tsx        # Route config — lazy import remotes
+│   │   ├── ProtectedRoute.tsx  # Auth guard + allowedRoles
+│   │   └── GuestRoute.tsx      # Redirect nếu đã login
+│   ├── layouts/
+│   │   ├── HomeLayout/         # Nav bar (role-based), user menu, outlet
+│   │   └── AuthLayout/         # Gradient bg + logo + card container
+│   ├── stores/
+│   │   └── authStore.ts        # Zustand persist (key: "nab-auth")
+│   ├── pages/                  # Chỉ giữ local pages
+│   │   ├── Auth/Login/         # RHF + Zod validation
+│   │   ├── Auth/Register/      # RHF + Zod + password strength
+│   │   ├── Home/               # Quick nav cards
+│   │   └── Profile/            # User info + change password (UI)
+│   └── validation/
+│       └── auth.validation.ts  # Zod schemas (login, register)
+├── @mf-types/                  # Auto-generated types từ MF plugin
+│   ├── dashboard/
+│   ├── accounts/
+│   ├── transfer/
+│   └── admin/
+└── rspack.config.ts
 ```
 
-### Layered Architecture
+**Shell rspack.config.ts — key config:**
 
-| Layer | Responsibility | Files |
-|-------|----------------|-------|
-| **Middleware** | Cross-cutting concerns (auth, logging, security) | `middleware/*.ts` |
-| **Routes** | URL routing, method mapping | `routes/*.ts` |
-| **Controllers** | Parse request, validate input, format response | `controllers/*.ts` |
-| **Services** | Business logic, orchestration | `services/*.ts` |
-| **Repositories** | Data access, SQL queries | `repositories/*.ts` |
-
-### Request Flow Example
-
-```
-POST /api/auth/login
-        │
-        ▼
-┌───────────────────┐
-│    Middleware     │  1. CORS check
-│   (cors, helmet)  │  2. Security headers
-└─────────┬─────────┘
-          │
-          ▼
-┌───────────────────┐
-│   requestLogger   │  3. Log: "→ POST /api/auth/login"
-└─────────┬─────────┘
-          │
-          ▼
-┌───────────────────┐
-│    authRoutes     │  4. Route to controller
-│ POST /auth/login  │
-└─────────┬─────────┘
-          │
-          ▼
-┌───────────────────┐
-│  authController   │  5. Extract {email, password} from body
-│     .login()      │  6. Call authService.login()
-└─────────┬─────────┘
-          │
-          ▼
-┌───────────────────┐
-│   authService     │  7. Find user by email
-│     .login()      │  8. Verify password (bcrypt)
-│                   │  9. Generate JWT tokens
-└─────────┬─────────┘
-          │
-          ▼
-┌───────────────────┐
-│  userRepository   │  10. SELECT * FROM users WHERE email = ?
-│  .findByEmail()   │
-└─────────┬─────────┘
-          │
-          ▼
-┌───────────────────┐
-│    PostgreSQL     │  11. Return user row
-└─────────┬─────────┘
-          │
-          ▼
-    Response: 200 OK
-    {
-      "success": true,
-      "data": {
-        "user": {...},
-        "tokens": {
-          "accessToken": "eyJ...",
-          "refreshToken": "eyJ..."
-        }
-      }
-    }
+```ts
+ModuleFederationPlugin({
+  name: "shell",
+  remotes: {
+    dashboard: "dashboard@http://localhost:3001/mf-manifest.json",
+    accounts:  "accounts@http://localhost:3002/mf-manifest.json",
+    transfer:  "transfer@http://localhost:3003/mf-manifest.json",
+    admin:     "admin@http://localhost:3004/mf-manifest.json",
+  },
+  shared: {
+    react:          { singleton: true, requiredVersion: "^18.2.0" },
+    "react-dom":    { singleton: true, requiredVersion: "^18.2.0" },
+    "react-router": { singleton: true },
+    zustand:        { singleton: true },
+  },
+})
 ```
 
-### JWT Authentication Flow
+**Lưu ý quan trọng:**
+- `publicPath: "/"` — Shell dùng absolute path vì là host app, tránh lỗi khi refresh ở nested routes (vd `/auth/register` → `/auth/main.js` 404)
+- `proxy: [{ context: ['/api'], target: 'http://localhost:4000' }]` — Proxy API calls tới BFF
+- `historyApiFallback: true` — SPA client-side routing
+
+### Remote App (Producer) — Ví dụ Dashboard
 
 ```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                           JWT TOKEN STRATEGY                                │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                             │
-│  ACCESS TOKEN                         REFRESH TOKEN                         │
-│  ─────────────                        ─────────────                         │
-│  • Expire: 15 minutes                 • Expire: 7 days                      │
-│  • Dùng: Authenticate API requests    • Dùng: Lấy access token mới          │
-│  • Lưu: Memory (recommended)          • Lưu: HttpOnly cookie / localStorage │
-│                                                                             │
-└─────────────────────────────────────────────────────────────────────────────┘
-
-FLOW:
-
-  ┌────────┐                                              ┌────────┐
-  │ Client │                                              │  BFF   │
-  └───┬────┘                                              └───┬────┘
-      │                                                       │
-      │  1. POST /auth/login {email, password}                │
-      │──────────────────────────────────────────────────────>│
-      │                                                       │
-      │  2. {accessToken, refreshToken}                       │
-      │<──────────────────────────────────────────────────────│
-      │                                                       │
-      │  3. GET /api/accounts                                 │
-      │     Authorization: Bearer <accessToken>               │
-      │──────────────────────────────────────────────────────>│
-      │                                                       │
-      │  4. {accounts: [...]}                                 │
-      │<──────────────────────────────────────────────────────│
-      │                                                       │
-      │         ⏰ 15 minutes later... accessToken expired    │
-      │                                                       │
-      │  5. GET /api/accounts (expired token)                 │
-      │──────────────────────────────────────────────────────>│
-      │                                                       │
-      │  6. 401 Unauthorized                                  │
-      │<──────────────────────────────────────────────────────│
-      │                                                       │
-      │  7. POST /auth/refresh {refreshToken}                 │
-      │──────────────────────────────────────────────────────>│
-      │                                                       │
-      │  8. {newAccessToken, newRefreshToken}                 │
-      │<──────────────────────────────────────────────────────│
-      │                                                       │
-      │  9. Retry: GET /api/accounts (new token)              │
-      │──────────────────────────────────────────────────────>│
-      │                                                       │
-      │  10. {accounts: [...]} ✅                             │
-      │<──────────────────────────────────────────────────────│
+apps/dashboard/
+├── src/
+│   ├── index.tsx              # import('./App') — async bootstrap
+│   ├── App.tsx                # Re-export: export { default as DashboardPage } from ...
+│   ├── @types/
+│   │   └── scss.d.ts          # Module declaration cho *.module.scss
+│   └── pages/
+│       └── Dashboard/
+│           ├── Dashboard.tsx
+│           └── Dashboard.module.scss
+├── rspack.config.ts
+├── package.json
+└── tsconfig.json
 ```
 
-### Error Handling
+**Remote rspack.config.ts — key config:**
 
-```typescript
-// Consistent error response format
-interface ErrorResponse {
-  success: false;
-  error: string;
-  code?: string;
+```ts
+ModuleFederationPlugin({
+  name: "dashboard",
+  exposes: {
+    "./DashboardPage": "./src/pages/Dashboard/Dashboard.tsx",
+  },
+  shared: { /* same as shell */ },
+})
+```
+
+**Lưu ý quan trọng:**
+- `publicPath: "auto"` — Remote dùng auto để chunk URLs resolve đúng bất kể host nào load
+- `headers: { 'Access-Control-Allow-Origin': '*' }` — Bắt buộc cho dev server, shell (port 3000) fetch manifest từ remote (port 3001) = cross-origin
+- `singleton: true` trên shared deps — đảm bảo chỉ 1 instance React/Zustand runtime, tránh "hooks can only be called inside a component" error
+
+### Cách Shell consume Remote
+
+```tsx
+// 1. Type declaration (src/@types/remotes.d.ts)
+declare module 'dashboard/DashboardPage' {
+  import { FC } from 'react';
+  const DashboardPage: FC;
+  export default DashboardPage;
 }
 
-// Example errors
-{ success: false, error: "Invalid credentials", code: "INVALID_CREDENTIALS" }
-{ success: false, error: "Account not found", code: "ACCOUNT_NOT_FOUND" }
-{ success: false, error: "Insufficient balance", code: "INSUFFICIENT_BALANCE" }
+// 2. Lazy import trong AppRoute.tsx
+const DashboardLazy = lazy(() => import('dashboard/DashboardPage'));
+
+// 3. Route config
+{ path: '/dashboard', element: <DashboardLazy /> }
+
+// 4. Wrap trong Suspense + ErrorBoundary
+<RemoteErrorBoundary>
+  <Suspense fallback={<div>Loading...</div>}>
+    {element}
+  </Suspense>
+</RemoteErrorBoundary>
 ```
 
-### Tại sao dùng BFF?
+### `@mf-types/` — Auto-generated Types
 
-| Benefit | Description |
-|---------|-------------|
-| **Tailored API** | API được thiết kế riêng cho Frontend, không phụ thuộc backend services |
-| **Aggregation** | Gộp nhiều backend calls thành 1 request (Dashboard) |
-| **Security** | JWT handling, sensitive logic ở server-side |
-| **Transformation** | Transform data format phù hợp với UI |
-| **Caching** | Cache responses với Redis |
+Khi chạy dev, `@module-federation/enhanced` tự generate type declarations vào `apps/shell/@mf-types/`. Folder này chứa compiled types từ mỗi remote:
 
-> 📖 Chi tiết implementation: [bff/README.md](./bff/README.md)
+```
+@mf-types/
+├── index.d.ts
+├── dashboard/
+│   ├── DashboardPage.d.ts     # Auto-gen từ remote exposes
+│   ├── apis.d.ts
+│   └── compiled-types/        # Full type tree của remote
+├── accounts/
+│   ├── AccountsPage.d.ts
+│   ├── AccountDetailPage.d.ts
+│   └── compiled-types/
+├── transfer/
+│   └── TransferPage.d.ts
+└── admin/
+    ├── AdminDashboardPage.d.ts
+    └── AdminUsersPage.d.ts
+```
 
-## Tài liệu tham khảo
+> **Note:** `@mf-types/` là auto-generated, nên add vào `.gitignore`. File `src/@types/remotes.d.ts` là manual fallback khi auto-gen chưa ready.
 
-- [Module Federation Documentation](https://module-federation.io/)
-- [Rspack Documentation](https://rspack.dev/)
-- [React 18 Documentation](https://react.dev/)
-- [Storybook Documentation](https://storybook.js.org/)
-- [pnpm Workspaces](https://pnpm.io/workspaces)
+### Tất cả Remote Apps
+
+| Remote | Port | publicPath | exposes | CORS |
+|--------|------|------------|---------|------|
+| dashboard | 3001 | auto | `./DashboardPage` | `*` |
+| accounts | 3002 | auto | `./AccountsPage`, `./AccountDetailPage` | `*` |
+| transfer | 3003 | auto | `./TransferPage` | `*` |
+| admin | 3004 | auto | `./AdminDashboardPage`, `./AdminUsersPage` | `*` |
+
+### Shared Dependencies
+
+Tất cả apps (shell + 4 remotes) share cùng config:
+
+```ts
+shared: {
+  react:          { singleton: true, requiredVersion: "^18.2.0" },
+  "react-dom":    { singleton: true, requiredVersion: "^18.2.0" },
+  "react-router": { singleton: true },
+  zustand:        { singleton: true },
+}
+```
+
+`singleton: true` = chỉ load 1 instance duy nhất. Nếu shell đã load React, remotes sẽ dùng cùng instance đó → tránh duplicate React runtime.
+
+### Role-based Routing
+
+```
+Admin login  → /admin           → AdminDashboardLazy (từ admin remote)
+             → /admin/users     → AdminUsersLazy (từ admin remote)
+
+User login   → /dashboard       → DashboardLazy (từ dashboard remote)
+             → /accounts        → AccountsLazy (từ accounts remote)
+             → /accounts/:id    → AccountDetailLazy (từ accounts remote)
+             → /transfer        → TransferLazy (từ transfer remote)
+
+Admin vào /dashboard → redirect /admin
+User vào /admin      → redirect /dashboard
+```
+
+### Troubleshooting
+
+| Vấn đề | Nguyên nhân | Fix |
+|--------|-------------|-----|
+| `Failed to get manifest` RUNTIME-003 | Remote app chưa chạy hoặc CORS | Chạy remote app + thêm `Access-Control-Allow-Origin: *` |
+| `publicPath: auto` → 404 trên shell | Shell cần `publicPath: "/"`, chỉ remotes dùng `auto` | Đổi shell về `/` |
+| Refresh page → 404 `main.js` | `historyApiFallback` chưa enable hoặc `publicPath` sai | Enable fallback + `publicPath: "/"` |
+| Hooks error (invalid hook call) | 2 React instances | Kiểm tra `singleton: true` trên tất cả apps |
+| Login 401 → page reload | apiClient refresh logic chạy cho auth endpoints | Thêm auth endpoint skip list |
+
+## BFF Architecture (Backend for Frontend)
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    FRONTEND (Micro-frontends)                │
+│   Shell(:3000)  Dashboard(:3001)  Accounts(:3002)           │
+│   Transfer(:3003)  Admin(:3004)                             │
+└──────────────────────────┬──────────────────────────────────┘
+                           │ HTTP (REST API)
+                           ▼
+┌─────────────────────────────────────────────────────────────┐
+│                      BFF LAYER (:4000)                       │
+│                                                              │
+│  Middleware:  CORS → Helmet → JSON → Logger → Auth (JWT)     │
+│                           │                                  │
+│  Routes:     /auth/*  /users/*  /accounts/*  /transfers      │
+│              /dashboard  /admin/*                             │
+│                           │                                  │
+│  Controllers:  Parse request → validate → format response    │
+│                           │                                  │
+│  Services:     Business logic, orchestration                 │
+│                           │                                  │
+│  Repositories: Data access (parameterized SQL queries)       │
+│                                                              │
+└──────────────────────────┬──────────────────────────────────┘
+                           │
+                ┌──────────┼──────────┐
+                │ PostgreSQL │  Redis  │
+                │   :5432    │  :6379  │
+                └────────────┴─────────┘
+```
+
+### Request Flow
+
+```
+POST /api/auth/login { email, password }
+  │
+  ├─→ Middleware: CORS → Helmet → JSON → Logger
+  ├─→ Zod Validation: loginSchema.parse(req.body)
+  ├─→ Controller: extract { email, password }
+  ├─→ Service: findUser → bcrypt.compare → generateTokenPair
+  ├─→ Repository: SELECT * FROM users WHERE email = $1
+  │
+  └─→ Response: { success: true, data: { user, tokens } }
+```
+
+### Transfer with DB Transaction
+
+```
+POST /api/transfers { fromAccountId, toAccountId, amount }
+  │
+  ├─→ Zod Validation: transferSchema
+  ├─→ Controller → Service.transfer()
+  │
+  ├─→ BEGIN
+  │   ├─→ Validate source account (ownership)
+  │   ├─→ Check sufficient balance
+  │   ├─→ Validate destination account
+  │   ├─→ UPDATE source: balance - amount
+  │   ├─→ UPDATE destination: balance + amount
+  │   ├─→ INSERT transaction record
+  │   └─→ COMMIT
+  │
+  └─→ On error: ROLLBACK + release client
+```
+
+## JWT Token Flow & Refresh Strategy
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│  ACCESS TOKEN              │  REFRESH TOKEN                  │
+│  Expire: 15 minutes        │  Expire: 7 days                 │
+│  Usage: API authentication  │  Usage: Get new access token    │
+│  Storage: Memory/localStorage │  Storage: HttpOnly cookie     │
+└──────────────────────────────────────────────────────────────┘
+```
+
+### Normal Flow
+
+```
+Client                                           BFF
+  │                                                │
+  │  1. POST /auth/login {email, password}         │
+  │───────────────────────────────────────────────>│
+  │  2. { user, tokens: {accessToken, refreshToken} } │
+  │<───────────────────────────────────────────────│
+  │                                                │
+  │  3. GET /accounts (Authorization: Bearer <AT>) │
+  │───────────────────────────────────────────────>│
+  │  4. { accounts: [...] }                        │
+  │<───────────────────────────────────────────────│
+```
+
+### Token Expired → Auto Refresh (apiClient)
+
+```
+Client (apiClient)                               BFF
+  │                                                │
+  │  1. GET /accounts (expired token)              │
+  │───────────────────────────────────────────────>│
+  │  2. 401 Unauthorized                           │
+  │<───────────────────────────────────────────────│
+  │                                                │
+  │  ┌─ refreshTokenOnce() ─────────────────────┐  │
+  │  │ Check: is someone already refreshing?     │  │
+  │  │   YES → await same promise (mutex)        │  │
+  │  │   NO  → POST /auth/refresh {refreshToken} │  │
+  │  │         ────────────────────────────────>  │  │
+  │  │         { newAccessToken, newRefreshToken }│  │
+  │  │         <────────────────────────────────  │  │
+  │  │ .finally() → reset mutex                  │  │
+  │  └──────────────────────────────────────────┘  │
+  │                                                │
+  │  3. Retry: GET /accounts (new token)           │
+  │───────────────────────────────────────────────>│
+  │  4. { accounts: [...] }                        │
+  │<───────────────────────────────────────────────│
+```
+
+### Multiple 401s — Mutex Pattern
+
+```
+Token expired, 3 requests fail simultaneously:
+
+  /accounts     → 401 → refreshTokenOnce() → POST /auth/refresh ← ONLY 1 CALL
+  /transactions → 401 → refreshTokenOnce() → await same promise ← WAIT
+  /profile      → 401 → refreshTokenOnce() → await same promise ← WAIT
+
+  Refresh done → all 3 get result → all 3 retry → all 3 succeed
+```
+
+### Auth Endpoint Skip
+
+```
+apiClient skips refresh logic for auth endpoints:
+
+  POST /auth/login → 401 (wrong password)
+    → skip refresh → throw ApiError(401) → show error in UI
+    → NO page reload, NO redirect
+
+  GET /accounts → 401 (token expired)
+    → try refresh → if success: retry
+                   → if fail: redirect /auth/login
+```
 
 ---
 
-**Note:** Dự án này được xây dựng cho mục đích học tập và phỏng vấn. Không sử dụng trong môi trường production.
+**Note:** This project is built for learning and interview preparation purposes.

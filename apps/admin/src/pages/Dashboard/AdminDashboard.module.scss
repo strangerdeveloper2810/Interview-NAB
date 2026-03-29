@@ -1,0 +1,604 @@
+// ── Design tokens ─────────────────────────────────────────────────────────────
+
+$color-bg:          #f8fafc;
+$color-surface:     #ffffff;
+$color-text-head:   #0f172a;
+$color-text-body:   #475569;
+$color-text-muted:  #94a3b8;
+$color-border:      #e2e8f0;
+
+$radius-card:       16px;
+$radius-sm:         8px;
+$shadow-card:       0 1px 3px rgba(0, 0, 0, 0.08), 0 4px 16px rgba(0, 0, 0, 0.04);
+$shadow-kpi:        0 4px 20px rgba(0, 0, 0, 0.18);
+
+$transition-fast:   0.18s ease;
+$transition-med:    0.25s ease;
+
+// ── Gradient palettes ─────────────────────────────────────────────────────────
+
+$grad-blue:   linear-gradient(135deg, #1a56db 0%, #3b82f6 100%);
+$grad-green:  linear-gradient(135deg, #059669 0%, #34d399 100%);
+$grad-orange: linear-gradient(135deg, #d97706 0%, #fbbf24 100%);
+$grad-purple: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%);
+
+// ── Dashboard shell ───────────────────────────────────────────────────────────
+
+.dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+  padding: 2rem 1.5rem 3rem;
+  background: $color-bg;
+  min-height: 100vh;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+
+  // ── Header ────────────────────────────────────────────────────────────────
+
+  &__header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  &__title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: $color-text-head;
+    margin: 0 0 0.25rem;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+  }
+
+  &__subtitle {
+    font-size: 0.9rem;
+    color: $color-text-muted;
+    margin: 0;
+  }
+
+  &__timestamp {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.8125rem;
+    color: $color-text-body;
+    background: $color-surface;
+    border: 1px solid $color-border;
+    border-radius: 999px;
+    padding: 0.375rem 0.875rem;
+    white-space: nowrap;
+  }
+
+  &__timestamp-dot {
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #22c55e;
+    box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.25);
+    flex-shrink: 0;
+  }
+
+  // ── KPI grid ──────────────────────────────────────────────────────────────
+
+  &__kpis {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+
+    @media (max-width: 960px) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    @media (max-width: 520px) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  // ── Charts row ────────────────────────────────────────────────────────────
+
+  &__charts {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  // ── Activity row ──────────────────────────────────────────────────────────
+
+  &__activity {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  // ── Quick actions ─────────────────────────────────────────────────────────
+
+  &__actions {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    align-items: center;
+    padding-top: 0.25rem;
+  }
+
+  &__actions-link {
+    text-decoration: none;
+  }
+}
+
+// ── KPI Card ──────────────────────────────────────────────────────────────────
+
+.kpi {
+  border-radius: $radius-card;
+  padding: 1.5rem;
+  color: #ffffff;
+  box-shadow: $shadow-kpi;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  position: relative;
+  overflow: hidden;
+  transition: transform $transition-med, box-shadow $transition-med;
+
+  // Subtle shine overlay
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.22);
+  }
+
+  &--blue   { background: $grad-blue;   }
+  &--green  { background: $grad-green;  }
+  &--orange { background: $grad-orange; }
+  &--purple { background: $grad-purple; }
+
+  // Top row: icon + trend
+  &__top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  &__icon {
+    font-size: 1.75rem;
+    line-height: 1;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+  }
+
+  &__trend {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 999px;
+    padding: 0.2rem 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.2rem;
+    white-space: nowrap;
+
+    &--up   { color: #dcfce7; }
+    &--down { color: #fee2e2; }
+  }
+
+  &__arrow {
+    font-size: 0.8rem;
+    line-height: 1;
+  }
+
+  &__value {
+    font-size: 1.75rem;
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    margin-top: 0.25rem;
+  }
+
+  &__label {
+    font-size: 0.8125rem;
+    opacity: 0.85;
+    font-weight: 500;
+  }
+}
+
+// ── Chart card shell ──────────────────────────────────────────────────────────
+
+.chart-card {
+  background: $color-surface;
+  border-radius: $radius-card;
+  box-shadow: $shadow-card;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+
+  &__title {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: $color-text-head;
+    margin: 0;
+    letter-spacing: -0.01em;
+  }
+}
+
+// ── Bar chart ─────────────────────────────────────────────────────────────────
+
+.chart-bar {
+  &__wrapper {
+    display: flex;
+    align-items: flex-end;
+    gap: 0.625rem;
+    height: 160px;
+    padding-bottom: 1.75rem;
+    position: relative;
+  }
+
+  &__col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.375rem;
+    height: 100%;
+    position: relative;
+  }
+
+  &__track {
+    flex: 1;
+    width: 100%;
+    display: flex;
+    align-items: flex-end;
+  }
+
+  &__bar {
+    width: 100%;
+    background: linear-gradient(180deg, #3b82f6 0%, #1a56db 100%);
+    border-radius: 6px 6px 2px 2px;
+    transition: height $transition-med, opacity $transition-fast, filter $transition-fast;
+    position: relative;
+    cursor: default;
+    min-height: 4px;
+
+    &:hover {
+      opacity: 0.85;
+      filter: brightness(1.1);
+    }
+
+    // Show tooltip on hover
+    &:hover .chart-bar__tooltip {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  &__tooltip {
+    position: absolute;
+    top: -2rem;
+    left: 50%;
+    transform: translateX(-50%) translateY(4px);
+    background: $color-text-head;
+    color: #fff;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    padding: 0.2rem 0.45rem;
+    border-radius: 4px;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity $transition-fast, transform $transition-fast;
+
+    // Arrow
+    &::after {
+      content: '';
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border: 4px solid transparent;
+      border-top-color: $color-text-head;
+    }
+  }
+
+  &__label {
+    font-size: 0.6875rem;
+    color: $color-text-muted;
+    font-weight: 600;
+    position: absolute;
+    bottom: 0;
+  }
+}
+
+// ── Donut chart ───────────────────────────────────────────────────────────────
+
+.chart-donut {
+  &__wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.25rem;
+  }
+
+  &__ring {
+    // Checking 50% (blue #3b82f6), Savings 30% (green #34d399), Credit 20% (purple #a78bfa)
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    background: conic-gradient(
+      #3b82f6 0% 50%,
+      #34d399 50% 80%,
+      #a78bfa 80% 100%
+    );
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    flex-shrink: 0;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+    transition: transform $transition-med;
+
+    // Inner mask creates the donut hole (24px stroke)
+    &::after {
+      content: '';
+      position: absolute;
+      width: 112px;
+      height: 112px;
+      border-radius: 50%;
+      background: $color-surface;
+    }
+
+    &:hover {
+      transform: scale(1.04);
+    }
+  }
+
+  &__center {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.125rem;
+    pointer-events: none;
+  }
+
+  &__total {
+    font-size: 1.625rem;
+    font-weight: 700;
+    color: $color-text-head;
+    line-height: 1;
+  }
+
+  &__sublabel {
+    font-size: 0.6875rem;
+    color: $color-text-muted;
+    font-weight: 500;
+  }
+
+  &__legend {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    width: 100%;
+    max-width: 220px;
+  }
+
+  &__legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  &__dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+
+    &--blue   { background: #3b82f6; }
+    &--green  { background: #34d399; }
+    &--purple { background: #a78bfa; }
+  }
+
+  &__legend-label {
+    font-size: 0.8125rem;
+    color: $color-text-body;
+    flex: 1;
+  }
+
+  &__legend-pct {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: $color-text-head;
+  }
+}
+
+// ── Activity card shell ───────────────────────────────────────────────────────
+
+.activity-card {
+  background: $color-surface;
+  border-radius: $radius-card;
+  box-shadow: $shadow-card;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+
+  &__title {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: $color-text-head;
+    margin: 0;
+    letter-spacing: -0.01em;
+  }
+}
+
+// ── User list ─────────────────────────────────────────────────────────────────
+
+.user-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.user-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.625rem 0.75rem;
+  border-radius: $radius-sm;
+  transition: background $transition-fast;
+  cursor: default;
+
+  &:hover {
+    background: #f8fafc;
+  }
+
+  &__info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+  }
+
+  &__name {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: $color-text-head;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__email {
+    font-size: 0.75rem;
+    color: $color-text-muted;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__meta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.25rem;
+    flex-shrink: 0;
+  }
+
+  &__date {
+    font-size: 0.6875rem;
+    color: $color-text-muted;
+    white-space: nowrap;
+  }
+}
+
+// ── Transaction feed ──────────────────────────────────────────────────────────
+
+.tx-feed {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.tx-item {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  padding: 0.75rem 0.875rem;
+  border-radius: $radius-sm;
+  border-left: 3px solid transparent;
+  transition: background $transition-fast;
+  cursor: default;
+
+  &:hover {
+    background: #f8fafc;
+  }
+
+  &--deposit    { border-left-color: #22c55e; }
+  &--withdrawal { border-left-color: #ef4444; }
+  &--transfer   { border-left-color: #3b82f6; }
+
+  &__dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    flex-shrink: 0;
+
+    &--deposit    { background: #22c55e; box-shadow: 0 0 0 3px rgba(34,197,94,0.2);  }
+    &--withdrawal { background: #ef4444; box-shadow: 0 0 0 3px rgba(239,68,68,0.2);  }
+    &--transfer   { background: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.2); }
+  }
+
+  &__body {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+  }
+
+  &__desc {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: $color-text-head;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__account {
+    font-size: 0.6875rem;
+    color: $color-text-muted;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+  }
+
+  &__right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.125rem;
+    flex-shrink: 0;
+  }
+
+  &__amount {
+    font-size: 0.8125rem;
+    font-weight: 700;
+
+    &--deposit    { color: #16a34a; }
+    &--withdrawal { color: #dc2626; }
+    &--transfer   { color: #2563eb; }
+  }
+
+  &__time {
+    font-size: 0.6875rem;
+    color: $color-text-muted;
+  }
+}

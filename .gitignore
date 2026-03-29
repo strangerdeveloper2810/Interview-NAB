@@ -1,16 +1,37 @@
+# Dependencies
 node_modules
+
+# Build output
 dist
+
+# Environment
 .env
 .env.local
+
+# Logs
 *.log
+
+# OS
 .DS_Store
+
+# Testing
 coverage
+
+# Storybook
 storybook-static
 
-
-
+# Nx
 .nx/cache
 .nx/workspace-data
 .nx/polygraph
+
+# Claude
 .claude/worktrees
 .claude/settings.local.json
+
+# Module Federation auto-generated types
+apps/shell/@mf-types
+apps/dashboard/@mf-types
+apps/accounts/@mf-types
+apps/transfer/@mf-types
+apps/admin/@mf-types

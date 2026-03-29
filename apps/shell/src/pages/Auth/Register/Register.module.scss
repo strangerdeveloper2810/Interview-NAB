@@ -1,0 +1,214 @@
+@use '@nab/shared-ui/src/styles/design-tokens' as *;
+
+// ============================================================================
+// REGISTER PAGE — child of AuthLayout
+// ============================================================================
+
+.header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.title {
+  font-size: 22px;
+  font-weight: 700;
+  color: $on-surface;
+  margin: 0 0 4px;
+  line-height: 1.3;
+}
+
+.subtitle {
+  font-size: 14px;
+  color: $outline;
+  margin: 0;
+}
+
+// ============================================================================
+// FORM
+// ============================================================================
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.alert {
+  margin-bottom: 4px;
+}
+
+.fields {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+// ============================================================================
+// PASSWORD WRAPPER — overlays eye toggle & indicators on the Input component
+// ============================================================================
+
+.password-wrapper {
+  position: relative;
+
+  input {
+    padding-right: 44px;
+  }
+}
+
+.toggle-password {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  height: 44px;
+  width: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: $outline;
+  border-radius: 0 8px 8px 0;
+  transition: color 0.15s ease;
+
+  &:hover,
+  &:focus-visible {
+    color: $primary-50;
+    outline: 2px solid $primary-50;
+    outline-offset: -2px;
+  }
+}
+
+// ============================================================================
+// PASSWORD STRENGTH INDICATOR
+// ============================================================================
+
+.strength {
+  margin-top: 6px;
+
+  &__bar-track {
+    height: 4px;
+    background: $surface-container-high;
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  &__bar-fill {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 0.25s ease, background-color 0.25s ease;
+
+    &--weak {
+      width: 33%;
+      background-color: $error-40;
+    }
+
+    &--medium {
+      width: 66%;
+      background-color: $warning-40;
+    }
+
+    &--strong {
+      width: 100%;
+      background-color: $success-40;
+    }
+  }
+
+  &__label {
+    font-size: 12px;
+    margin-top: 4px;
+    font-weight: 500;
+
+    &--weak {
+      color: $error-40;
+    }
+
+    &--medium {
+      color: $warning-30;
+    }
+
+    &--strong {
+      color: $success-30;
+    }
+  }
+}
+
+// ============================================================================
+// CONFIRM PASSWORD MATCH INDICATOR
+// ============================================================================
+
+.confirm-wrapper {
+  position: relative;
+
+  input {
+    padding-right: 44px;
+  }
+}
+
+.match-icon {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  height: 44px;
+  width: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  font-size: 16px;
+
+  &--match {
+    color: $success-40;
+  }
+
+  &--mismatch {
+    color: $error-40;
+  }
+}
+
+// When eye toggle is also present in confirm field, shift match icon left
+.confirm-wrapper--with-toggle {
+  input {
+    padding-right: 80px;
+  }
+
+  .match-icon {
+    right: 44px;
+  }
+}
+
+// ============================================================================
+// ACTIONS
+// ============================================================================
+
+.submit {
+  width: 100%;
+  margin-top: 4px;
+}
+
+// ============================================================================
+// FOOTER LINK
+// ============================================================================
+
+.footer {
+  margin-top: 8px;
+  text-align: center;
+  font-size: 14px;
+  color: $outline;
+
+  a {
+    color: $primary-50;
+    font-weight: 600;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+
+    &:focus-visible {
+      outline: 2px solid $primary-50;
+      outline-offset: 2px;
+      border-radius: 2px;
+    }
+  }
+}

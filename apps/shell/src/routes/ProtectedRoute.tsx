@@ -1,23 +1,23 @@
 import { type FC, type JSX } from 'react';
 import { Navigate, useLocation } from 'react-router';
-import { type Permission, hasPermission } from '@nab/shared-types';
+import { type Permission, type UserRole, hasPermission } from '@nab/shared-types';
 import { RoutesApp } from '../constants/route';
+import useAuthStore from '../stores/authStore';
 
 interface IProtectedRoute {
   children: JSX.Element;
   requiredPermission?: Permission;
+  allowedRoles?: UserRole[];
 }
 
 const ProtectedRoute: FC<IProtectedRoute> = ({
   children,
   requiredPermission,
+  allowedRoles,
 }) => {
   const location = useLocation();
-
-  // TODO: replace with useAuth() once authStore is ready
-  const isAuthenticated = false;
-  const isLoading = false;
-  const userRole = '';
+  const { isAuthenticated, isLoading, user } = useAuthStore();
+  const userRole = user?.role || '';
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -31,6 +31,12 @@ const ProtectedRoute: FC<IProtectedRoute> = ({
         replace
       />
     );
+  }
+
+  // Role-based access
+  if (allowedRoles && !allowedRoles.includes(userRole as UserRole)) {
+    const redirectTo = userRole === 'admin' ? RoutesApp.ADMIN_DASHBOARD : RoutesApp.DASHBOARD;
+    return <Navigate to={redirectTo} replace />;
   }
 
   if (requiredPermission && !hasPermission(userRole, requiredPermission)) {

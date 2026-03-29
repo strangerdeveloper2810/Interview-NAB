@@ -1,0 +1,327 @@
+// AccountDetail.module.scss — BEM: .accountDetail, .accountDetail__*, etc.
+
+// ─── Design tokens ───────────────────────────────────────────────────────────
+$primary:         #1a56db;
+$primary-dark:    #1241a3;
+$white:           #ffffff;
+$text-primary:    #0f172a;
+$text-secondary:  #64748b;
+$border:          #e2e8f0;
+$bg:              #f0f2f5;
+$success:         #059669;
+$radius-sm:       8px;
+$radius-md:       12px;
+$radius-lg:       16px;
+$radius-xl:       24px;
+$shadow-sm:       0 1px 3px rgba(0, 0, 0, 0.06), 0 4px 16px rgba(0, 0, 0, 0.04);
+$shadow-md:       0 4px 12px rgba(0, 0, 0, 0.10), 0 12px 32px rgba(0, 0, 0, 0.08);
+
+// ─── Page wrapper ────────────────────────────────────────────────────────────
+.accountDetail {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 24px 16px 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+
+  @media (min-width: 768px) {
+    padding: 32px 32px 56px;
+    gap: 32px;
+  }
+}
+
+// ─── Back link ────────────────────────────────────────────────────────────────
+.accountDetail__back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: $primary;
+  text-decoration: none;
+  padding: 6px 0;
+  border-radius: $radius-sm;
+  transition: color 0.15s ease;
+  width: fit-content;
+
+  &:hover {
+    color: $primary-dark;
+    text-decoration: underline;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: 3px;
+  }
+}
+
+// ─── Account info card (gradient) ────────────────────────────────────────────
+.accountDetail__infoCard {
+  background: linear-gradient(135deg, #0a1628 0%, #1a2a4a 60%, #1241a3 100%);
+  border-radius: $radius-xl;
+  padding: 28px 24px;
+  color: $white;
+  box-shadow: $shadow-md;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+
+  @media (min-width: 600px) {
+    padding: 32px 32px;
+  }
+}
+
+.accountDetail__infoHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.accountDetail__name {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: $white;
+  margin: 0 0 8px;
+  letter-spacing: -0.01em;
+
+  @media (min-width: 600px) {
+    font-size: 1.5rem;
+  }
+}
+
+.accountDetail__typeBadge {
+  // Override badge background to show on dark gradient
+  opacity: 0.92;
+}
+
+.accountDetail__transferBtn {
+  flex-shrink: 0;
+  background: rgba($white, 0.12) !important;
+  border-color: rgba($white, 0.3) !important;
+  color: $white !important;
+
+  &:hover,
+  &:focus-visible {
+    background: rgba($white, 0.22) !important;
+    border-color: rgba($white, 0.5) !important;
+  }
+}
+
+// ─── Account number row ──────────────────────────────────────────────────────
+.accountDetail__numberRow {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.accountDetail__numberLabel {
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba($white, 0.6);
+}
+
+.accountDetail__numberValue {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.accountDetail__number {
+  font-family: 'SF Mono', 'Fira Code', 'Monaco', 'Roboto Mono', monospace;
+  font-size: 1rem;
+  font-weight: 600;
+  color: $white;
+  letter-spacing: 0.08em;
+  background: none;
+  border: none;
+  padding: 0;
+}
+
+.accountDetail__copyBtn {
+  background: rgba($white, 0.14);
+  border: 1px solid rgba($white, 0.25);
+  color: $white;
+  border-radius: $radius-sm;
+  padding: 4px 10px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background 0.15s ease;
+
+  &:hover {
+    background: rgba($white, 0.24);
+  }
+
+  &:focus-visible {
+    outline: 2px solid rgba($white, 0.6);
+    outline-offset: 2px;
+  }
+}
+
+// ─── Balance row ──────────────────────────────────────────────────────────────
+.accountDetail__balanceRow {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.accountDetail__balanceLabel {
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba($white, 0.6);
+}
+
+.accountDetail__balance {
+  color: $white !important;
+}
+
+// ─── Not-found state ─────────────────────────────────────────────────────────
+.accountDetail__notFound {
+  text-align: center;
+  padding: 48px 24px;
+  color: $text-secondary;
+  font-size: 1rem;
+}
+
+// ─── Transaction section ─────────────────────────────────────────────────────
+.accountDetail__txSection {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.accountDetail__txTitle {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: $text-primary;
+  margin: 0;
+}
+
+// ─── Filters ──────────────────────────────────────────────────────────────────
+.accountDetail__filters {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  @media (min-width: 600px) {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+.accountDetail__filterGroup {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.accountDetail__filterBtn {
+  background: $white;
+  border: 1.5px solid $border;
+  color: $text-secondary;
+  border-radius: $radius-sm;
+  padding: 6px 14px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  &:hover {
+    border-color: $primary;
+    color: $primary;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: 2px;
+  }
+
+  &--active {
+    background: $primary;
+    border-color: $primary;
+    color: $white;
+
+    &:hover {
+      background: $primary-dark;
+      border-color: $primary-dark;
+      color: $white;
+    }
+  }
+}
+
+// ─── Transaction list ────────────────────────────────────────────────────────
+.accountDetail__txList {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.accountDetail__txGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.accountDetail__txGroupDate {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: $text-secondary;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0;
+}
+
+.accountDetail__txGroupCard {
+  border-radius: $radius-md !important;
+  border: 1px solid $border !important;
+  overflow: hidden;
+}
+
+.accountDetail__txItem {
+  padding: 14px 16px !important;
+  transition: background 0.1s ease;
+
+  &:hover {
+    background: #f8fafc;
+  }
+
+  &--bordered {
+    border-bottom: 1px solid $border;
+  }
+}
+
+// ─── Empty state ──────────────────────────────────────────────────────────────
+.accountDetail__txEmpty {
+  text-align: center;
+  padding: 40px 24px;
+  color: $text-secondary;
+  background: $white;
+  border-radius: $radius-md;
+  border: 1px dashed $border;
+  font-size: 0.9rem;
+}
+
+// ─── Footer / pagination ─────────────────────────────────────────────────────
+.accountDetail__txFooter {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding-top: 8px;
+}
+
+.accountDetail__txCount {
+  font-size: 0.85rem;
+  color: $text-secondary;
+}
+
+.accountDetail__loadMoreBtn {
+  min-width: 140px;
+}

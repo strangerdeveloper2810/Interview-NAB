@@ -1,0 +1,144 @@
+@import '../../styles/design-tokens';
+
+// ============================================================================
+// Keyframes
+// ============================================================================
+
+@keyframes slideIn {
+  from {
+    transform: translateX(calc(100% + 24px));
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+    max-height: 120px;
+    margin-bottom: $space-2;
+  }
+  to {
+    transform: translateX(calc(100% + 24px));
+    opacity: 0;
+    max-height: 0;
+    margin-bottom: 0;
+  }
+}
+
+// ============================================================================
+// Container — fixed top-right stack
+// ============================================================================
+
+.container {
+  position: fixed;
+  top: $space-6;
+  right: $space-6;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: $space-2;
+  // Prevent container from blocking pointer events on the page behind it
+  pointer-events: none;
+}
+
+// ============================================================================
+// Individual toast card
+// ============================================================================
+
+.toast {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: $space-3;
+  padding: $space-3 $space-4;
+  max-width: 360px;
+  min-width: 240px;
+  background: $surface;
+  border-radius: $corner-small;
+  @include elevation(3);
+  font-family: $font-family-primary;
+
+  // Slide in on mount
+  animation: slideIn 0.28s cubic-bezier(0.2, 0, 0, 1) both;
+
+  // Exiting state — fade/slide out to the right and collapse height
+  &--exiting {
+    animation: fadeOut 0.3s cubic-bezier(0.4, 0, 1, 1) both;
+    pointer-events: none;
+  }
+}
+
+// ============================================================================
+// Variant — left-border accent (mirrors Alert pattern)
+// ============================================================================
+
+.info {
+  border-left: 4px solid $alert-info-outline;
+  color: $alert-info-on-surface;
+}
+
+.success {
+  border-left: 4px solid $alert-success-outline;
+  color: $alert-success-on-surface;
+}
+
+.warning {
+  border-left: 4px solid $alert-warning-outline;
+  color: $alert-warning-on-surface;
+}
+
+.error {
+  border-left: 4px solid $alert-error-outline;
+  color: $alert-error-on-surface;
+}
+
+// ============================================================================
+// Sub-elements
+// ============================================================================
+
+.toast__icon {
+  flex-shrink: 0;
+  @include typography($title-medium);
+  line-height: 1;
+}
+
+.toast__message {
+  flex: 1;
+  min-width: 0;
+  @include typography($body-medium);
+  word-break: break-word;
+}
+
+.toast__close {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  margin: 0 -4px 0 0;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: $corner-extra-small;
+  color: currentColor;
+  opacity: 0.6;
+  @include typography($title-medium);
+  transition: opacity 0.15s ease, background 0.15s ease;
+
+  &:hover {
+    opacity: 1;
+    background: rgba(0, 0, 0, 0.08);
+  }
+
+  &:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 1px;
+  }
+}

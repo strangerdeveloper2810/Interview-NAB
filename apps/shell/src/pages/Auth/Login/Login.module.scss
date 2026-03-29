@@ -1,0 +1,118 @@
+// ============================================================================
+// LOGIN PAGE — child of AuthLayout
+// ============================================================================
+
+.header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.title {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--color-text);
+  margin: 0 0 4px;
+  line-height: 1.3;
+}
+
+.subtitle {
+  font-size: 14px;
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+// ============================================================================
+// FORM
+// ============================================================================
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.fields {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+// ============================================================================
+// PASSWORD WRAPPER — overlays eye toggle on the Input component
+// ============================================================================
+
+.password-wrapper {
+  position: relative;
+
+  // Push padding into the native input rendered by shared-ui Input
+  input {
+    padding-right: 44px !important;
+  }
+}
+
+.toggle-password {
+  position: absolute;
+  // Input height is 44px; account for label (approx 22px + 4px gap above input)
+  bottom: 0;
+  right: 0;
+  height: 44px;
+  width: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-text-secondary);
+  border-radius: 0 8px 8px 0;
+  transition: color 0.15s ease;
+  flex-shrink: 0;
+
+  &:hover,
+  &:focus-visible {
+    color: var(--color-primary);
+    outline: 2px solid var(--color-primary);
+    outline-offset: -2px;
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+}
+
+// ============================================================================
+// SUBMIT BUTTON
+// ============================================================================
+
+.submit {
+  width: 100%;
+  margin-top: 4px;
+}
+
+// ============================================================================
+// FOOTER LINK
+// ============================================================================
+
+.footer {
+  margin-top: 8px;
+  text-align: center;
+  font-size: 14px;
+  color: var(--color-text-secondary);
+
+  a {
+    color: var(--color-primary);
+    font-weight: 600;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 2px;
+      border-radius: 2px;
+    }
+  }
+}

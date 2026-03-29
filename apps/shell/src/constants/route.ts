@@ -12,5 +12,6 @@ export enum RoutesApp {
   PROFILE = '/profile',
 
   // Admin
+  ADMIN_DASHBOARD = '/admin',
   ADMIN_USERS = '/admin/users',
 }

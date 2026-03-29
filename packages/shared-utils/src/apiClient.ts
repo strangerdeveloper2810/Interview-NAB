@@ -28,15 +28,21 @@ const refreshTokenOnce = (): Promise<boolean> => {
     return refreshPromise
 }
 
+const AUTH_ENDPOINTS = ['auth/login', 'auth/register', 'auth/refresh'];
+
+const isAuthEndpoint = (endpoint: string): boolean =>
+    AUTH_ENDPOINTS.some((e) => endpoint.replace(/^\//, '').startsWith(e));
+
 const request = async<T>(endpoint: string, options?: RequestInit): Promise<T> => {
-    const response = await fetch(`${API_BASE}/${endpoint}`, {
+    const url = `${API_BASE}/${endpoint.replace(/^\//, '')}`;
+    const response = await fetch(url, {
         headers: {
             'Content-Type': "application/json",
         },
         credentials: "include",
         ...options
     })
-    if (response.status === 401) {
+    if (response.status === 401 && !isAuthEndpoint(endpoint)) {
         const refreshed = await refreshTokenOnce();
         if (refreshed) {
             return request<T>(endpoint, options) //retry 1 lan

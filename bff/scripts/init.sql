@@ -47,11 +47,11 @@ TRUNCATE TABLE transactions, accounts, users RESTART IDENTITY CASCADE;
 -- Users (5 users)
 -- Password: 123456 | bcrypt hash (10 rounds)
 INSERT INTO users (email, name, password_hash, role) VALUES
-    ('admin@nab.com', 'Admin User', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZRGdjGj/n3.Y.XlZQy7PqFGsv1ZKu', 'admin'),
-    ('john@nab.com', 'John Nguyen', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZRGdjGj/n3.Y.XlZQy7PqFGsv1ZKu', 'user'),
-    ('jane@nab.com', 'Jane Tran', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZRGdjGj/n3.Y.XlZQy7PqFGsv1ZKu', 'user'),
-    ('bob@nab.com', 'Bob Le', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZRGdjGj/n3.Y.XlZQy7PqFGsv1ZKu', 'user'),
-    ('alice@nab.com', 'Alice Pham', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZRGdjGj/n3.Y.XlZQy7PqFGsv1ZKu', 'user');
+    ('admin@nab.com', 'Admin User', '$2a$10$aiyb73KXmLmX50kb/WHcP.RmEcq0W6rHqKduaY8KiQLc4Ay9yQ9/W', 'admin'),
+    ('john@nab.com', 'John Nguyen', '$2a$10$aiyb73KXmLmX50kb/WHcP.RmEcq0W6rHqKduaY8KiQLc4Ay9yQ9/W', 'user'),
+    ('jane@nab.com', 'Jane Tran', '$2a$10$aiyb73KXmLmX50kb/WHcP.RmEcq0W6rHqKduaY8KiQLc4Ay9yQ9/W', 'user'),
+    ('bob@nab.com', 'Bob Le', '$2a$10$aiyb73KXmLmX50kb/WHcP.RmEcq0W6rHqKduaY8KiQLc4Ay9yQ9/W', 'user'),
+    ('alice@nab.com', 'Alice Pham', '$2a$10$aiyb73KXmLmX50kb/WHcP.RmEcq0W6rHqKduaY8KiQLc4Ay9yQ9/W', 'user');
 
 -- Accounts (10 accounts)
 INSERT INTO accounts (user_id, name, type, balance, currency, account_number) VALUES

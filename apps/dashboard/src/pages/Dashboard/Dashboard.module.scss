@@ -1,0 +1,243 @@
+// Dashboard.module.scss
+// BEM: .dashboard, .summaryGrid, .summaryCard, .section, .quickActions, etc.
+
+// ─── Design tokens ──────────────────────────────────────────────────────────
+$primary: #003087;           // NAB dark blue
+$primary-light: #004fc4;
+$white: #ffffff;
+$text-primary: #1a1a2e;
+$text-secondary: #64748b;
+$border: #e2e8f0;
+$radius-md: 12px;
+$radius-lg: 16px;
+$shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+$shadow-md: 0 4px 16px rgba(0, 0, 0, 0.1);
+$spacing-xs: 8px;
+$spacing-sm: 12px;
+$spacing-md: 16px;
+$spacing-lg: 24px;
+$spacing-xl: 32px;
+
+// ─── Layout ─────────────────────────────────────────────────────────────────
+.dashboard {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: $spacing-lg $spacing-md $spacing-xl;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+
+  @media (min-width: 768px) {
+    padding: $spacing-xl;
+    gap: $spacing-xl;
+  }
+}
+
+// ─── Header ─────────────────────────────────────────────────────────────────
+.dashboard__header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.dashboard__welcome {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: $text-primary;
+  margin: 0;
+
+  @media (min-width: 768px) {
+    font-size: 1.875rem;
+  }
+}
+
+.dashboard__username {
+  color: $primary-light;
+}
+
+.dashboard__subtitle {
+  font-size: 0.9rem;
+  color: $text-secondary;
+  margin: 0;
+}
+
+// ─── Quick Actions ───────────────────────────────────────────────────────────
+.quickActions {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: $spacing-sm;
+
+  @media (max-width: 600px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.quickActions__btn {
+  width: 100%;
+  font-size: 0.875rem;
+  font-weight: 600;
+  border: 2px solid $primary !important;
+  color: $primary !important;
+  background: transparent !important;
+  border-radius: $radius-md !important;
+  padding: $spacing-sm $spacing-xs !important;
+  transition: background 0.15s ease, color 0.15s ease;
+
+  &:hover,
+  &:focus-visible {
+    background: $primary !important;
+    color: $white !important;
+  }
+}
+
+// ─── Summary Grid ────────────────────────────────────────────────────────────
+.summaryGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: $spacing-md;
+
+  // Horizontal scroll on mobile
+  @media (max-width: 600px) {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    gap: $spacing-sm;
+    padding-bottom: $spacing-xs; // room for scrollbar
+
+    & > * {
+      flex: 0 0 75vw;
+      scroll-snap-align: start;
+    }
+  }
+}
+
+// ─── Summary Card ────────────────────────────────────────────────────────────
+.summaryCard {
+  background: linear-gradient(135deg, $primary 0%, $primary-light 100%) !important;
+  border-radius: $radius-lg !important;
+  color: $white;
+  box-shadow: $shadow-md;
+  min-width: 0; // prevent overflow in grid
+}
+
+.summaryCard__label {
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: rgba($white, 0.75);
+  margin: 0 0 $spacing-xs;
+}
+
+.summaryCard__value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: $white;
+  margin: 0;
+  word-break: break-word;
+
+  @media (min-width: 768px) {
+    font-size: 1.875rem;
+  }
+}
+
+// ─── Generic Section ─────────────────────────────────────────────────────────
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.section__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.section__title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: $text-primary;
+  margin: 0;
+}
+
+.section__viewAll {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: $primary-light;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $primary-light;
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+}
+
+// ─── Account Grid ────────────────────────────────────────────────────────────
+.accountGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: $spacing-md;
+
+  @media (max-width: 480px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+// ─── Account Card Skeleton ───────────────────────────────────────────────────
+.accountCardSkeleton {
+  border-radius: $radius-md !important;
+}
+
+.accountCardSkeleton__content {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+  padding: $spacing-sm 0 0;
+}
+
+// ─── Transaction List ────────────────────────────────────────────────────────
+.transactionList {
+  border-radius: $radius-lg !important;
+  border: 1px solid $border;
+  overflow: hidden;
+}
+
+.transactionList__item {
+  border-bottom: 1px solid $border;
+  padding: $spacing-md !important;
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &:hover {
+    background: #f8fafc;
+  }
+}
+
+// ─── Transaction Skeleton ────────────────────────────────────────────────────
+.transactionSkeleton {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+  padding: $spacing-md;
+  border-bottom: 1px solid $border;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.transactionSkeleton__text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+}

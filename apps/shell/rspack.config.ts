@@ -5,7 +5,7 @@ import { ModuleFederationPlugin } from "@module-federation/enhanced/rspack";
 export default defineConfig({
   entry: "./src/index.tsx",
   output: {
-    publicPath: "auto",
+    publicPath: "/",
     uniqueName: "shell",
   },
   resolve: {
@@ -56,7 +56,12 @@ export default defineConfig({
     }),
     new ModuleFederationPlugin({
       name: "shell",
-      remotes: {},
+      remotes: {
+        dashboard: "dashboard@http://localhost:3001/mf-manifest.json",
+        accounts: "accounts@http://localhost:3002/mf-manifest.json",
+        transfer: "transfer@http://localhost:3003/mf-manifest.json",
+        admin: "admin@http://localhost:3004/mf-manifest.json",
+      },
       shared: {
         react: {
           singleton: true,
@@ -82,5 +87,11 @@ export default defineConfig({
     port: 3000,
     historyApiFallback: true,
     hot: true,
+    proxy: [
+      {
+        context: ['/api'],
+        target: 'http://localhost:4000',
+      },
+    ],
   },
 });

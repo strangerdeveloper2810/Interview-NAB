@@ -13,3 +13,5 @@ export * from "./components/Badge";
 export * from "./components/Avatar";
 export * from "./components/Alert";
 export * from "./components/Skeleton";
+export * from "./components/Icon";
+export * from "./components/Toast";

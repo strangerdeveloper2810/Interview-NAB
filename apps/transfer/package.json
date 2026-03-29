@@ -1,0 +1,27 @@
+{
+  "name": "transfer",
+  "private": true,
+  "scripts": {
+    "dev": "echo '💸 [Transfer] Starting on port 3003...' && rspack serve",
+    "build": "rspack build"
+  },
+  "dependencies": {
+    "@nab/shared-ui": "workspace:*",
+    "@nab/shared-utils": "workspace:*",
+    "@nab/shared-types": "workspace:*",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router": "^7.0.0",
+    "zustand": "^5.0.0"
+  },
+  "devDependencies": {
+    "@module-federation/enhanced": "^0.8.0",
+    "@rspack/cli": "1.6.8",
+    "@rspack/core": "1.6.8",
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "sass-loader": "*",
+    "sass-embedded": "*",
+    "typescript": "^5.4.0"
+  }
+}

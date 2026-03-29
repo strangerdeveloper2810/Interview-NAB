@@ -1,0 +1,94 @@
+.users {
+  padding: 2rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+
+  &__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  &__header-left {
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  &__header-right {
+    min-width: 260px;
+
+    @media (max-width: 480px) {
+      min-width: 100%;
+    }
+  }
+
+  &__title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0;
+    color: var(--color-text-primary, #111827);
+  }
+
+  &__count {
+    font-size: 0.875rem;
+    color: var(--color-text-secondary, #6b7280);
+    white-space: nowrap;
+  }
+
+  // Table wrapper — horizontal scroll on small screens
+  &__table-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  &__table {
+    width: 100%;
+    min-width: 640px; // prevents squishing before scroll kicks in
+    border-collapse: collapse;
+    font-size: 0.875rem;
+  }
+
+  &__th {
+    text-align: left;
+    padding: 0.75rem 1rem;
+    font-weight: 600;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-text-secondary, #6b7280);
+    border-bottom: 1px solid var(--color-border, #e5e7eb);
+    white-space: nowrap;
+    background-color: var(--color-surface-secondary, #f9fafb);
+  }
+
+  &__row {
+    transition: background-color 0.15s ease;
+
+    &:hover {
+      background-color: var(--color-surface-hover, #f3f4f6);
+    }
+
+    &:not(:last-child) td {
+      border-bottom: 1px solid var(--color-border, #e5e7eb);
+    }
+  }
+
+  &__td {
+    padding: 0.875rem 1rem;
+    color: var(--color-text-primary, #111827);
+    vertical-align: middle;
+    white-space: nowrap;
+  }
+
+  &__empty {
+    padding: 2.5rem 1rem;
+    text-align: center;
+    color: var(--color-text-secondary, #6b7280);
+    font-size: 0.875rem;
+  }
+}
