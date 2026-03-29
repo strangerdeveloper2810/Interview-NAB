@@ -18,3 +18,5 @@ export const query = <T extends pg.QueryResultRow>(
   text: string,
   params?: unknown[]
 ) => pool.query<T>(text, params);
+
+export const getClient = () => pool.connect();

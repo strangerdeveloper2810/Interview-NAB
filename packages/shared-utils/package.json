@@ -1,0 +1,17 @@
+{
+  "name": "@nab/shared-utils",
+  "private": true,
+  "version": "1.0.0",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+    "test": "jest"
+  },
+  "dependencies": {
+    "@nab/shared-types": "workspace:*"
+  },
+  "devDependencies": {
+    "ts-jest": "^29.4.6",
+    "@types/jest": "^30.0.0"
+  }
+}

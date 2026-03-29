@@ -63,4 +63,41 @@ export const userController = {
       next(err);
     }
   },
+
+  /**
+   * PUT /api/users/password
+   * Change current user's password
+   */
+  async changePassword(
+    req: AuthRequest,
+    res: Response<SuccessResponse>,
+    next: NextFunction
+  ) {
+    try {
+      const userId = req.user?.userId;
+
+      if (userId === undefined) {
+        throw new AppError(401, "User not authenticated");
+      }
+
+      const { currentPassword, newPassword } = req.body;
+
+      if (!currentPassword || typeof currentPassword !== "string") {
+        throw new AppError(400, "Current password is required");
+      }
+
+      if (!newPassword || typeof newPassword !== "string") {
+        throw new AppError(400, "New password is required");
+      }
+
+      await userService.changePassword(userId, currentPassword, newPassword);
+
+      res.json({
+        success: true,
+        data: { message: "Password updated successfully" },
+      });
+    } catch (err) {
+      next(err);
+    }
+  },
 };

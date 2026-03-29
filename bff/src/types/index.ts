@@ -2,11 +2,14 @@ import { Request } from "express";
 
 // ============ Entity Types ============
 
+export type UserRole = 'user' | 'admin';
+
 export interface User {
   id: number;
   email: string;
   name: string;
   password_hash: string;
+  role: UserRole;
   created_at: Date;
 }
 
@@ -35,6 +38,7 @@ export interface Transaction {
 export interface JwtPayload {
   userId: number;
   email: string;
+  role: UserRole;
 }
 
 export interface AuthRequest extends Request {
@@ -100,4 +104,9 @@ export interface CreateTransactionRequest {
   type: Transaction["type"];
   amount: number;
   description?: string;
+}
+
+export interface ChangePasswordRequest {
+  currentPassword: string;
+  newPassword: string;
 }

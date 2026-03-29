@@ -28,3 +28,21 @@ export const authMiddleware = (
     next(new AppError(500, "Authentication failed"));
   }
 };
+
+/**
+ * Role-based authorization middleware
+ * Usage: requireRole('admin') or requireRole('user', 'admin')
+ */
+export const requireRole = (...roles: string[]) => {
+  return (req: AuthRequest, _res: Response, next: NextFunction) => {
+    if (!req.user) {
+      return next(new AppError(401, "Authentication required"));
+    }
+
+    if (!roles.includes(req.user.role)) {
+      return next(new AppError(403, "Insufficient permissions"));
+    }
+
+    next();
+  };
+};

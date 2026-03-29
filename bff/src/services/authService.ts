@@ -36,7 +36,7 @@ export const authService = {
     const user = await userRepository.create(email, name, passwordHash);
 
     // Generate tokens
-    const tokens = jwtUtils.generateTokenPair(user.id, user.email);
+    const tokens = jwtUtils.generateTokenPair(user.id, user.email, user.role);
 
     // Return user without password
     const { password_hash, ...userWithoutPassword } = user;
@@ -60,7 +60,7 @@ export const authService = {
     }
 
     // Generate tokens
-    const tokens = jwtUtils.generateTokenPair(user.id, user.email);
+    const tokens = jwtUtils.generateTokenPair(user.id, user.email, user.role);
 
     // Return user without password
     const { password_hash, ...userWithoutPassword } = user;

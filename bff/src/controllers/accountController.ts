@@ -76,7 +76,11 @@ export const accountController = {
       const userId = req.user?.userId;
       const accountId = parseInt(req.params.id, 10);
       const limit = parseInt(req.query.limit as string, 10) || 50;
-      const offset = parseInt(req.query.offset as string, 10) || 0;
+      const page = parseInt(req.query.page as string, 10) || 1;
+      const offset = parseInt(req.query.offset as string, 10) || (page - 1) * limit;
+      const type = (req.query.type as string) || undefined;
+      const daysParam = req.query.days as string | undefined;
+      const days = daysParam ? parseInt(daysParam, 10) : undefined;
 
       if (userId === undefined) {
         throw new AppError(401, "User not authenticated");
@@ -86,12 +90,22 @@ export const accountController = {
         throw new AppError(400, "Invalid account ID");
       }
 
+      if (type && !['all', 'deposit', 'withdrawal', 'transfer'].includes(type)) {
+        throw new AppError(400, "Invalid transaction type");
+      }
+
+      if (days !== undefined && (isNaN(days) || days <= 0)) {
+        throw new AppError(400, "Invalid days parameter");
+      }
+
       const { transactions, total } =
         await accountService.getTransactionsByAccountId(
           accountId,
           userId,
           limit,
-          offset
+          offset,
+          type,
+          days
         );
 
       res.json({

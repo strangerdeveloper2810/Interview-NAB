@@ -65,9 +65,15 @@ importers:
 
   apps/shell:
     dependencies:
+      '@nab/shared-types':
+        specifier: workspace:*
+        version: link:../../packages/shared-types
       '@nab/shared-ui':
         specifier: workspace:*
         version: link:../../packages/shared-ui
+      '@nab/shared-utils':
+        specifier: workspace:*
+        version: link:../../packages/shared-utils
       node-fetch:
         specifier: ^3.3.2
         version: 3.3.2
@@ -129,6 +135,9 @@ importers:
       sass-loader:
         specifier: ^14.1.0
         version: 14.2.1(@rspack/core@1.7.10(@swc/helpers@0.5.19))(sass-embedded@1.98.0)(sass@1.98.0)(webpack@5.105.4(@swc/core@1.15.21(@swc/helpers@0.5.19))(esbuild@0.27.4))
+      style-loader:
+        specifier: ^4.0.0
+        version: 4.0.0(webpack@5.105.4(@swc/core@1.15.21(@swc/helpers@0.5.19))(esbuild@0.27.4))
       ts-jest:
         specifier: ^29.4.6
         version: 29.4.6(@babel/core@7.29.0)(@jest/transform@30.3.0)(@jest/types@30.3.0)(babel-jest@30.3.0(@babel/core@7.29.0))(esbuild@0.27.4)(jest-util@30.3.0)(jest@30.3.0(@types/node@25.5.0)(babel-plugin-macros@3.1.0)(esbuild-register@3.6.0(esbuild@0.27.4))(ts-node@10.9.2(@swc/core@1.15.21(@swc/helpers@0.5.19))(@types/node@25.5.0)(typescript@5.9.3)))(typescript@5.9.3)
@@ -162,6 +171,9 @@ importers:
       pg:
         specifier: ^8.11.3
         version: 8.20.0
+      zod:
+        specifier: ^3.23.0
+        version: 3.25.76
     devDependencies:
       '@types/bcryptjs':
         specifier: ^2.4.6
@@ -190,6 +202,8 @@ importers:
       typescript:
         specifier: ^5.4.0
         version: 5.9.3
+
+  packages/shared-types: {}
 
   packages/shared-ui:
     dependencies:
@@ -230,6 +244,19 @@ importers:
       vite:
         specifier: ^5.4.0
         version: 5.4.21(@types/node@25.5.0)(less@4.6.4)(lightningcss@1.32.0)(sass-embedded@1.98.0)(sass@1.98.0)(terser@5.46.1)
+
+  packages/shared-utils:
+    dependencies:
+      '@nab/shared-types':
+        specifier: workspace:*
+        version: link:../shared-types
+    devDependencies:
+      '@types/jest':
+        specifier: ^30.0.0
+        version: 30.0.0
+      ts-jest:
+        specifier: ^29.4.6
+        version: 29.4.6(@babel/core@7.29.0)(@jest/transform@30.3.0)(@jest/types@30.3.0)(babel-jest@30.3.0(@babel/core@7.29.0))(esbuild@0.27.4)(jest-util@30.3.0)(jest@30.3.0(@types/node@25.5.0)(babel-plugin-macros@3.1.0)(esbuild-register@3.6.0(esbuild@0.27.4))(ts-node@10.9.2(@swc/core@1.15.21(@swc/helpers@0.5.19))(@types/node@25.5.0)(typescript@5.9.3)))(typescript@5.9.3)
 
 packages:
 
@@ -6134,6 +6161,12 @@ packages:
     peerDependencies:
       webpack: ^5.0.0
 
+  style-loader@4.0.0:
+    resolution: {integrity: sha512-1V4WqhhZZgjVAVJyt7TdDPZoPBPNHbekX4fWnCJL1yQukhCeZhJySUL+gL9y6sNdN95uEOS83Y55SqHcP7MzLA==}
+    engines: {node: '>= 18.12.0'}
+    peerDependencies:
+      webpack: ^5.27.0
+
   supports-color@5.5.0:
     resolution: {integrity: sha512-QjVjwdXIt408MIiAqCX4oUKsgU2EqAGzs2Ppkm4aQYbjm+ZEWEcW4SfFNTr4uMNZma0ey4f5lgLrkB0aX0QMow==}
     engines: {node: '>=4'}
@@ -6719,6 +6752,9 @@ packages:
   yocto-queue@0.1.0:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
     engines: {node: '>=10'}
+
+  zod@3.25.76:
+    resolution: {integrity: sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ==}
 
   zustand@4.5.7:
     resolution: {integrity: sha512-CHOUy7mu3lbD6o6LJLfllpjkzhHXSBlX8B9+qPddUsIfeF5S/UZ5q0kmCsnRqT1UHFQZchNFDDzMbQsuesHWlw==}
@@ -13624,6 +13660,10 @@ snapshots:
     dependencies:
       webpack: 5.105.4(@swc/core@1.15.21(@swc/helpers@0.5.19))(esbuild@0.25.12)
 
+  style-loader@4.0.0(webpack@5.105.4(@swc/core@1.15.21(@swc/helpers@0.5.19))(esbuild@0.27.4)):
+    dependencies:
+      webpack: 5.105.4(@swc/core@1.15.21(@swc/helpers@0.5.19))(esbuild@0.27.4)
+
   supports-color@5.5.0:
     dependencies:
       has-flag: 3.0.0
@@ -13683,7 +13723,6 @@ snapshots:
     optionalDependencies:
       '@swc/core': 1.15.21(@swc/helpers@0.5.19)
       esbuild: 0.27.4
-    optional: true
 
   terser@5.46.1:
     dependencies:
@@ -14171,7 +14210,6 @@ snapshots:
       - '@swc/core'
       - esbuild
       - uglify-js
-    optional: true
 
   websocket-driver@0.7.4:
     dependencies:
@@ -14281,6 +14319,8 @@ snapshots:
   yn@3.1.1: {}
 
   yocto-queue@0.1.0: {}
+
+  zod@3.25.76: {}
 
   zustand@4.5.7(@types/react@18.3.28)(react@18.3.1):
     dependencies:

@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken";
 import { AppError } from "../middleware/errorHandler.js";
+import type { UserRole } from "../types/index.js";
 
 const ACCESS_TOKEN_SECRET = process.env.JWT_SECRET || "access-secret-key";
 const REFRESH_TOKEN_SECRET =
@@ -11,6 +12,7 @@ const REFRESH_TOKEN_EXPIRES_IN = "7d"; // 7 days
 export interface TokenPayload {
   userId: number;
   email: string;
+  role: UserRole;
   type: "access" | "refresh";
 }
 
@@ -24,15 +26,15 @@ export const jwtUtils = {
   /**
    * Generate access and refresh token pair
    */
-  generateTokenPair(userId: number, email: string): TokenPair {
+  generateTokenPair(userId: number, email: string, role: UserRole): TokenPair {
     const accessToken = jwt.sign(
-      { userId, email, type: "access" } as TokenPayload,
+      { userId, email, role, type: "access" } as TokenPayload,
       ACCESS_TOKEN_SECRET,
       { expiresIn: ACCESS_TOKEN_EXPIRES_IN }
     );
 
     const refreshToken = jwt.sign(
-      { userId, email, type: "refresh" } as TokenPayload,
+      { userId, email, role, type: "refresh" } as TokenPayload,
       REFRESH_TOKEN_SECRET,
       { expiresIn: REFRESH_TOKEN_EXPIRES_IN }
     );
@@ -55,7 +57,7 @@ export const jwtUtils = {
         throw new AppError(401, "Invalid token type");
       }
 
-      return { userId: decoded.userId, email: decoded.email };
+      return { userId: decoded.userId, email: decoded.email, role: decoded.role };
     } catch (err) {
       if (err instanceof AppError) throw err;
       throw new AppError(401, "Invalid or expired access token");
@@ -73,7 +75,7 @@ export const jwtUtils = {
         throw new AppError(401, "Invalid token type");
       }
 
-      return { userId: decoded.userId, email: decoded.email };
+      return { userId: decoded.userId, email: decoded.email, role: decoded.role };
     } catch (err) {
       if (err instanceof AppError) throw err;
       throw new AppError(401, "Invalid or expired refresh token");
@@ -85,6 +87,6 @@ export const jwtUtils = {
    */
   refreshTokens(refreshToken: string): TokenPair {
     const payload = this.verifyRefreshToken(refreshToken);
-    return this.generateTokenPair(payload.userId, payload.email);
+    return this.generateTokenPair(payload.userId, payload.email, payload.role);
   },
 };

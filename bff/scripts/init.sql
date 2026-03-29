@@ -6,6 +6,7 @@ CREATE TABLE IF NOT EXISTS users (
     email VARCHAR(255) UNIQUE NOT NULL,
     name VARCHAR(255) NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
+    role VARCHAR(20) NOT NULL DEFAULT 'user' CHECK (role IN ('user', 'admin')),
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -45,12 +46,12 @@ TRUNCATE TABLE transactions, accounts, users RESTART IDENTITY CASCADE;
 
 -- Users (5 users)
 -- Password: 123456 | bcrypt hash (10 rounds)
-INSERT INTO users (email, name, password_hash) VALUES
-    ('admin@nab.com', 'Admin User', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZRGdjGj/n3.Y.XlZQy7PqFGsv1ZKu'),
-    ('john@nab.com', 'John Nguyen', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZRGdjGj/n3.Y.XlZQy7PqFGsv1ZKu'),
-    ('jane@nab.com', 'Jane Tran', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZRGdjGj/n3.Y.XlZQy7PqFGsv1ZKu'),
-    ('bob@nab.com', 'Bob Le', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZRGdjGj/n3.Y.XlZQy7PqFGsv1ZKu'),
-    ('alice@nab.com', 'Alice Pham', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZRGdjGj/n3.Y.XlZQy7PqFGsv1ZKu');
+INSERT INTO users (email, name, password_hash, role) VALUES
+    ('admin@nab.com', 'Admin User', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZRGdjGj/n3.Y.XlZQy7PqFGsv1ZKu', 'admin'),
+    ('john@nab.com', 'John Nguyen', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZRGdjGj/n3.Y.XlZQy7PqFGsv1ZKu', 'user'),
+    ('jane@nab.com', 'Jane Tran', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZRGdjGj/n3.Y.XlZQy7PqFGsv1ZKu', 'user'),
+    ('bob@nab.com', 'Bob Le', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZRGdjGj/n3.Y.XlZQy7PqFGsv1ZKu', 'user'),
+    ('alice@nab.com', 'Alice Pham', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZRGdjGj/n3.Y.XlZQy7PqFGsv1ZKu', 'user');
 
 -- Accounts (10 accounts)
 INSERT INTO accounts (user_id, name, type, balance, currency, account_number) VALUES

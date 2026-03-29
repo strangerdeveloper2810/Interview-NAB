@@ -8,7 +8,9 @@
     "test:watch": "nx jest:test --watch"
   },
   "dependencies": {
+    "@nab/shared-types": "workspace:*",
     "@nab/shared-ui": "workspace:*",
+    "@nab/shared-utils": "workspace:*",
     "node-fetch": "^3.3.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

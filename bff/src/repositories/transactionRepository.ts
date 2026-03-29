@@ -20,14 +20,34 @@ export const transactionRepository = {
   async findByAccountId(
     accountId: number,
     limit = 50,
-    offset = 0
+    offset = 0,
+    type?: string,
+    days?: number
   ): Promise<Transaction[]> {
+    const params: unknown[] = [accountId];
+    const conditions: string[] = ['account_id = $1'];
+    let paramIndex = 2;
+
+    if (type && type !== 'all') {
+      conditions.push(`type = $${paramIndex}`);
+      params.push(type);
+      paramIndex++;
+    }
+
+    if (days) {
+      conditions.push(`created_at >= NOW() - INTERVAL '1 day' * $${paramIndex}`);
+      params.push(days);
+      paramIndex++;
+    }
+
+    params.push(limit, offset);
+
     const result = await query<Transaction>(
       `SELECT * FROM transactions
-       WHERE account_id = $1
+       WHERE ${conditions.join(' AND ')}
        ORDER BY created_at DESC
-       LIMIT $2 OFFSET $3`,
-      [accountId, limit, offset]
+       LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`,
+      params
     );
     return result.rows;
   },
@@ -46,10 +66,29 @@ export const transactionRepository = {
     return result.rows[0];
   },
 
-  async countByAccountId(accountId: number): Promise<number> {
+  async countByAccountId(
+    accountId: number,
+    type?: string,
+    days?: number
+  ): Promise<number> {
+    const params: unknown[] = [accountId];
+    const conditions: string[] = ['account_id = $1'];
+    let paramIndex = 2;
+
+    if (type && type !== 'all') {
+      conditions.push(`type = $${paramIndex}`);
+      params.push(type);
+      paramIndex++;
+    }
+
+    if (days) {
+      conditions.push(`created_at >= NOW() - INTERVAL '1 day' * $${paramIndex}`);
+      params.push(days);
+    }
+
     const result = await query<{ count: string }>(
-      'SELECT COUNT(*) FROM transactions WHERE account_id = $1',
-      [accountId]
+      `SELECT COUNT(*) FROM transactions WHERE ${conditions.join(' AND ')}`,
+      params
     );
     return parseInt(result.rows[0].count, 10);
   },
